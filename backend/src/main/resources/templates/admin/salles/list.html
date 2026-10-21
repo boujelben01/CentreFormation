@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!-- Salles : liste (lot 7, étape 3a) d'après la maquette admin/salles.html ; patron : GUIDE-ADMIN-MODULE.md.
+     Attribut de modèle inchangé : « salles ». Le serveur envoie TOUTES les lignes ; recherche, tri, filtres et
+     pagination : admin-list.js (data-list*). Suppression : formulaire POST (th:action, CSRF) + dialogue (data-confirm-delete). -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Salles',
+                   description='Liste des salles : recherche, tri, ajout, modification et suppression.',
+                   crumbCurrent='Salles', content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page"
+         th:with="n=${salles == null ? 0 : #lists.size(salles)}">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Salles</h1>
+      <p id="list-sub" th:text="${n == 0 ? 'Aucune salle' : (n == 1 ? '1 salle' : n + ' salles')}">12 salles</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-primary" th:href="@{/admin/pedagogie/salles/add}"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg>Ajouter une salle</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : empty-state (liste vide côté serveur) -->
+  <div class="card" th:if="${n == 0}">
+    <div class="state">
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucune salle pour le moment</h2>
+      <p>Cette liste est vide. Ajoutez une première salle pour commencer.</p>
+      <a class="btn btn-secondary" th:href="@{/admin/pedagogie/salles/add}">Ajouter une salle</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : data-table -->
+  <div class="card" th:unless="${n == 0}" data-list data-list-id="salles" data-list-sort="nom" data-list-page-size="10">
+    <div class="toolbar" data-list-toolbar hidden>
+      <div class="search-field">
+        <label class="sr-only" for="salles-search">Rechercher une salle</label>
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+        <input class="input input-icon" type="search" id="salles-search" data-list-search placeholder="Nom de la salle" autocomplete="off">
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" data-list-reset hidden><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>Réinitialiser la recherche</button>
+    </div>
+    <div class="result-line"><p data-list-count role="status" aria-live="polite" th:text="${n == 1 ? '1 résultat' : n + ' résultats'}">12 résultats</p></div>
+
+    <div class="table-wrap" data-list-wrap tabindex="0" role="region" aria-label="Liste des salles (défilement horizontal possible)">
+      <table class="dt" data-list-table>
+        <caption class="sr-only">Liste des salles, triable par colonne</caption>
+        <thead>
+          <tr>
+            <th scope="col" data-sort="text" data-sort-key="nom">Nom</th>
+            <th scope="col" class="is-num" data-sort="num" data-sort-key="capacite">Capacité</th>
+            <th scope="col" class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="s : ${salles}"
+              th:with="libelle=${s.nom ?: ''}">
+            <td class="cell-wrap" th:text="${s.nom}">Nom</td>
+            <td class="is-num tnum" th:text="${s.capacite}">30</td>
+            <td class="col-actions">
+              <span class="row-actions">
+                <a class="icon-btn icon-btn-sm is-primary" th:href="@{'/admin/pedagogie/salles/edit/' + ${s.id}}" title="Modifier" th:attr="aria-label=|Modifier ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-pencil"/></svg></a>
+                <form class="inline-form" th:action="@{'/admin/pedagogie/salles/delete/' + ${s.id}}" method="post" data-confirm-delete th:attr="data-confirm-label=${libelle}">
+                  <ul hidden data-confirm-items>
+                    <li th:text="|Capacité : ${s.capacite}${s.capacite == 1 ? ' place' : ' places'}.|">Capacité</li>
+                  </ul>
+                  <button type="submit" class="icon-btn icon-btn-sm is-danger" title="Supprimer" th:attr="aria-label=|Supprimer ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-trash"/></svg></button>
+                </form>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COMPOSANT : état « aucun résultat » (affiché par admin-list.js) -->
+    <div class="state" data-list-empty hidden>
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucune salle ne correspond</h2>
+      <p>Essayez avec un autre terme ou retirez un filtre pour élargir la recherche.</p>
+      <button type="button" class="btn btn-secondary" data-list-reset><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg>Réinitialiser la recherche</button>
+    </div>
+
+    <!-- COMPOSANT : pagination (construite par admin-list.js) -->
+    <nav class="pagination" data-list-pagination hidden aria-label="Pagination : liste des salles"></nav>
+  </div>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-list.js}" src="../../../static/public/js/admin-list.js" defer></script>
+</th:block>
+
+</body>
+</html>

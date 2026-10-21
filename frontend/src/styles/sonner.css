@@ -1,0 +1,25 @@
+/* Compléments de structure pour que `sonner` reprenne le composant .toast de la maquette (client.css).
+   Tokens uniquement. Spécificité volontairement supérieure à celle des styles internes de la bibliothèque. */
+.toast[data-sonner-toast] {
+  animation: none;                 /* l'entrée/sortie et l'empilement sont gérés par la bibliothèque (transform) */
+  pointer-events: auto;
+  opacity: 0;
+  width: fit-content;              /* la maquette dimensionne le toast sur son contenu, jusqu'à 380 px */
+  max-width: min(100%, 380px);
+  right: 0;                        /* aligné à droite comme la région .toasts de la maquette */
+  left: auto;
+}
+.toast[data-sonner-toast][data-mounted="true"] { opacity: 1; }
+.toast[data-sonner-toast][data-removed="true"] { opacity: 0; }
+.toast[data-sonner-toast] [data-icon] { width: auto; height: auto; margin: 0; flex: none; }
+.toast[data-sonner-toast] [data-icon] > .icon { margin: 0; }
+.toast[data-sonner-toast] [data-content] { display: block; flex: 1; min-width: 0; gap: 0; }
+.toast[data-sonner-toast] .toast__title { display: block; font-weight: var(--weight-bold); line-height: inherit; color: var(--text); }
+.toast[data-sonner-toast] .toast__text { display: block; font-weight: var(--weight-regular); line-height: inherit; color: var(--text-muted); }
+.toast[data-sonner-toast] [data-close-button] {
+  position: static; order: 3; transform: none; opacity: 1;
+  margin: -4px -8px -4px auto; width: 32px; height: 32px;
+  border: 1px solid transparent; border-radius: var(--radius-md); background: transparent; color: var(--text-muted);
+}
+.toast[data-sonner-toast] [data-close-button]:hover { background: var(--surface-2); color: var(--text); border-color: transparent; }
+.toast[data-sonner-toast] [data-close-button]:active { background: var(--surface-sunken); }

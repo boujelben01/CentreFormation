@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!-- Tableau de bord admin (lot 7) : maquette admin/index.html.
+     Attributs de modèle inchangés (AdminDashboardController) : 6 compteurs affichés + 8 tableaux de données. -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Tableau de bord',
+                   description='Tableau de bord de l’administration EduPortal : compteurs et graphiques sur les effectifs, l’analyse pédagogique et la performance académique.',
+                   content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-dash">
+  <div class="page-head">
+    <div>
+      <h1 id="h-dash" tabindex="-1">Tableau de bord</h1>
+      <p th:with="today=${#temporals.createToday()},
+                  jours=${ {'lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'} },
+                  mois=${ {'janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'} }"
+         th:text="|Vue d’ensemble au ${jours[#temporals.dayOfWeek(today) - 1]} ${#temporals.day(today)} ${mois[#temporals.month(today) - 1]} ${#temporals.year(today)}.|">Vue d’ensemble.</p>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : kpi-card (6 compteurs réels) -->
+  <div class="kpi-grid">
+    <a class="kpi" th:href="@{/admin/utilisateurs}"><span class="kpi-top"><span>Utilisateurs</span><span class="kpi-ico"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-user-cog"/></svg></span></span><span class="kpi-value tnum" th:text="${userCount} ?: '—'">0</span></a>
+    <a class="kpi" th:href="@{/admin/etudiants}"><span class="kpi-top"><span>Étudiants</span><span class="kpi-ico"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-graduation-cap"/></svg></span></span><span class="kpi-value tnum" th:text="${etudiantCount} ?: '—'">0</span></a>
+    <a class="kpi" th:href="@{/admin/formateurs}"><span class="kpi-top"><span>Formateurs</span><span class="kpi-ico"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-briefcase"/></svg></span></span><span class="kpi-value tnum" th:text="${formateurCount} ?: '—'">0</span></a>
+    <a class="kpi" th:href="@{/admin/pedagogie/cours}"><span class="kpi-top"><span>Cours</span><span class="kpi-ico"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-book-open"/></svg></span></span><span class="kpi-value tnum" th:text="${coursCount} ?: '—'">0</span></a>
+    <a class="kpi" th:href="@{/admin/pedagogie/groupes}"><span class="kpi-top"><span>Groupes</span><span class="kpi-ico"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-users"/></svg></span></span><span class="kpi-value tnum" th:text="${groupeCount} ?: '—'">0</span></a>
+    <a class="kpi" th:href="@{/admin/inscriptions}"><span class="kpi-top"><span>Inscriptions</span><span class="kpi-ico"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-clipboard-list"/></svg></span></span><span class="kpi-value tnum" th:text="${inscriptionCount} ?: '—'">0</span></a>
+  </div>
+
+  <!-- Répartition des effectifs : graphiques 1 + 3 (une carte, 2 séries) et 2 -->
+  <h2 class="section-title" id="g-effectifs">Répartition des effectifs</h2>
+  <div class="dash-grid" role="group" aria-labelledby="g-effectifs">
+    <section class="card card-pad span-3" aria-labelledby="t-spec"
+             th:with="etuSpec=${etudiantsParSpecialite}, frmSpec=${formateursParSpecialite},
+                      vide=${(etuSpec == null or #maps.isEmpty(etuSpec)) and (frmSpec == null or #maps.isEmpty(frmSpec))}">
+      <div class="card-head"><h3 id="t-spec">Effectifs par spécialité</h3><span class="card-sub">Étudiants (via leur groupe) et formateurs</span></div>
+      <div th:if="${vide}" class="chart-empty" role="status"><p>Aucune donnée disponible pour ce graphique.</p></div>
+      <figure th:unless="${vide}" class="chart-fig" id="fig-spec">
+        <div class="chart-box"><canvas id="cv-spec" role="img" aria-label="Effectifs par spécialité (Étudiants, Formateurs). Données détaillées dans le tableau associé."></canvas></div>
+        <figcaption class="chart-data"><table><caption>Effectifs par spécialité</caption>
+          <thead><tr><th scope="col">Spécialité</th><th scope="col">Étudiants</th><th scope="col">Formateurs</th></tr></thead>
+          <tbody>
+            <tr th:each="e : ${etuSpec}"><th scope="row" th:text="${e.key}">Spécialité</th><td class="tnum" th:text="${e.value}">0</td><td class="tnum" th:text="${frmSpec != null and frmSpec[e.key] != null} ? ${frmSpec[e.key]} : 0">0</td></tr>
+            <tr th:each="f : ${frmSpec}" th:unless="${etuSpec != null and etuSpec[f.key] != null}"><th scope="row" th:text="${f.key}">Spécialité</th><td class="tnum">0</td><td class="tnum" th:text="${f.value}">0</td></tr>
+          </tbody>
+        </table></figcaption>
+      </figure>
+    </section>
+    <section class="card card-pad span-3" aria-labelledby="t-grp">
+      <div class="card-head"><h3 id="t-grp">Étudiants par groupe</h3><span class="card-sub">Effectif de chaque groupe</span></div>
+      <th:block th:replace="~{admin/dashboard :: chartFigure(cid='grp', ctitle='Étudiants par groupe', chead='Groupe', cname='Étudiants', cmap=${etudiantsParGroupe})}"></th:block>
+    </section>
+  </div>
+
+  <!-- Analyse pédagogique : graphiques 4 et 5 -->
+  <h2 class="section-title" id="g-pedagogie">Analyse pédagogique</h2>
+  <div class="dash-grid" role="group" aria-labelledby="g-pedagogie">
+    <section class="card card-pad span-3" aria-labelledby="t-crs">
+      <div class="card-head"><h3 id="t-crs">Inscriptions par cours</h3><span class="card-sub">Tous statuts confondus, par cours</span></div>
+      <th:block th:replace="~{admin/dashboard :: chartFigure(cid='crs', ctitle='Inscriptions par cours', chead='Cours', cname='Inscriptions', cmap=${inscriptionsParCours})}"></th:block>
+    </section>
+    <section class="card card-pad span-3" aria-labelledby="t-charge">
+      <div class="card-head"><h3 id="t-charge">Charge horaire par formateur</h3><span class="card-sub">Somme des séances, en heures</span></div>
+      <th:block th:replace="~{admin/dashboard :: chartFigure(cid='charge', ctitle='Charge horaire par formateur', chead='Formateur', cname='Heures', cmap=${chargeHoraireFormateur}, cunit=' h')}"></th:block>
+    </section>
+  </div>
+
+  <!-- Performance académique : graphique 6, puis 7 et 8 en onglets -->
+  <h2 class="section-title" id="g-performance">Performance académique</h2>
+  <div class="dash-grid" role="group" aria-labelledby="g-performance">
+    <section class="card card-pad span-3" aria-labelledby="t-dist">
+      <div class="card-head"><h3 id="t-dist">Distribution des notes</h3><span class="card-sub">Nombre de notes par tranche, sur 20</span></div>
+      <th:block th:replace="~{admin/dashboard :: chartFigure(cid='dist', ctitle='Distribution des notes', chead='Tranche', cname='Notes', cmap=${distributionNotes},
+                                                             cnote='Barres corail : tranches inférieures à 10/20 (0-8 et 8-10).')}"></th:block>
+    </section>
+    <section class="card card-pad span-3" aria-labelledby="t-perf">
+      <div class="card-head"><h3 id="t-perf">Performance académique</h3></div>
+      <div class="tabs" role="tablist" aria-label="Indicateur de performance" data-tabs>
+        <button type="button" class="tab" role="tab" id="tab-moyenne" aria-controls="panel-moyenne" aria-selected="true" tabindex="0">Moyenne par groupe</button>
+        <button type="button" class="tab" role="tab" id="tab-reussite" aria-controls="panel-reussite" aria-selected="false" tabindex="-1">Réussite par cours</button>
+      </div>
+      <div role="tabpanel" id="panel-moyenne" aria-labelledby="tab-moyenne">
+        <th:block th:replace="~{admin/dashboard :: chartFigure(cid='moyenne', ctitle='Moyenne par groupe', chead='Groupe', cname='Moyenne /20', cmap=${moyenneParGroupe}, cunit='/20', cdec=2)}"></th:block>
+      </div>
+      <div role="tabpanel" id="panel-reussite" aria-labelledby="tab-reussite" hidden>
+        <th:block th:replace="~{admin/dashboard :: chartFigure(cid='reussite', ctitle='Réussite par cours (%)', chead='Cours', cname='Réussite (%)', cmap=${tauxReussiteParCours}, cunit=' %', cdec=1)}"></th:block>
+      </div>
+    </section>
+  </div>
+
+  <section aria-labelledby="sc-t">
+    <h2 class="section-title" id="sc-t">Accès rapide</h2>
+    <div class="shortcuts">
+      <a class="shortcut" th:href="@{/admin/etudiants/add}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-user-plus"/></svg>Ajouter un étudiant</a>
+      <a class="shortcut" th:href="@{/admin/pedagogie/seances/add}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-clock"/></svg>Ajouter une séance</a>
+      <a class="shortcut" th:href="@{/admin/inscriptions/add}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-clipboard-list"/></svg>Ajouter une inscription</a>
+      <a class="shortcut" th:href="@{/admin/notifications/compose}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-send"/></svg>Nouvelle notification</a>
+    </div>
+  </section>
+</section>
+
+<!-- Graphique à une série : état vide si aucune donnée (ou que des zéros, comme la maquette),
+     sinon canevas + tableau de données (lu par les lecteurs d'écran, affiché si Chart.js manque).
+     Paramètres : cid, ctitle, chead, cname, cmap ; facultatifs : cunit, cdec (décimales), cnote. -->
+<th:block th:fragment="chartFigure"
+          th:with="vide=${cmap == null or #maps.isEmpty(cmap) or #aggregates.sum(cmap.values()) == 0}">
+  <div th:if="${vide}" class="chart-empty" role="status"><p>Aucune donnée disponible pour ce graphique.</p></div>
+  <figure th:unless="${vide}" class="chart-fig" th:id="|fig-${cid}|">
+    <div class="chart-box"><canvas th:id="|cv-${cid}|" role="img" th:aria-label="|${ctitle}. Données détaillées dans le tableau associé.|"></canvas></div>
+    <figcaption class="chart-data"><table><caption th:text="${ctitle}">Titre</caption>
+      <thead><tr><th scope="col" th:text="${chead}">Libellé</th><th scope="col" th:text="${cname}">Valeur</th></tr></thead>
+      <tbody>
+        <tr th:each="e : ${cmap}"><th scope="row" th:text="${e.key}">Libellé</th><td class="tnum" th:text="${(cdec == null ? e.value : #numbers.formatDecimal(e.value, 1, cdec, 'COMMA')) + (cunit ?: '')}">0</td></tr>
+      </tbody>
+    </table></figcaption>
+  </figure>
+  <p th:if="${cnote != null and !vide}" class="chart-note" th:text="${cnote}">Note</p>
+</th:block>
+
+<th:block th:fragment="page-scripts">
+  <script th:inline="javascript">
+    /* Données réelles du contrôleur (mêmes attributs de modèle qu'avant le lot 7). */
+    window.EP_DASH = {
+      etudiantsParSpecialite: /*[[${etudiantsParSpecialite}]]*/ {},
+      formateursParSpecialite: /*[[${formateursParSpecialite}]]*/ {},
+      etudiantsParGroupe: /*[[${etudiantsParGroupe}]]*/ {},
+      inscriptionsParCours: /*[[${inscriptionsParCours}]]*/ {},
+      chargeHoraireFormateur: /*[[${chargeHoraireFormateur}]]*/ {},
+      distributionNotes: /*[[${distributionNotes}]]*/ {},
+      moyenneParGroupe: /*[[${moyenneParGroupe}]]*/ {},
+      tauxReussiteParCours: /*[[${tauxReussiteParCours}]]*/ {}
+    };
+  </script>
+  <script th:src="@{/public/js/vendor/chart.umd.min.js}" src="../../static/public/js/vendor/chart.umd.min.js" defer></script>
+  <script th:src="@{/public/js/admin-dashboard.js}" src="../../static/public/js/admin-dashboard.js" defer></script>
+</th:block>
+
+</body>
+</html>

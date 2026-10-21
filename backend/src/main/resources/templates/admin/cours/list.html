@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!-- Cours : liste (lot 7, étape 3a) d'après la maquette admin/cours.html ; patron : GUIDE-ADMIN-MODULE.md.
+     Attribut de modèle inchangé : « cours ». Le serveur envoie TOUTES les lignes ; recherche, tri, filtres et
+     pagination : admin-list.js (data-list*). Suppression : formulaire POST (th:action, CSRF) + dialogue (data-confirm-delete). -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Cours',
+                   description='Liste des cours : recherche, tri, filtre par formateur, ajout, modification et suppression.',
+                   crumbCurrent='Cours', content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page"
+         th:with="n=${cours == null ? 0 : #lists.size(cours)}">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Cours</h1>
+      <p id="list-sub" th:text="${n == 0 ? 'Aucun cours' : (n == 1 ? '1 cours' : n + ' cours')}">12 cours</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-primary" th:href="@{/admin/pedagogie/cours/add}"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg>Ajouter un cours</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : empty-state (liste vide côté serveur) -->
+  <div class="card" th:if="${n == 0}">
+    <div class="state">
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucun cours pour le moment</h2>
+      <p>Cette liste est vide. Ajoutez un premier cours pour commencer.</p>
+      <a class="btn btn-secondary" th:href="@{/admin/pedagogie/cours/add}">Ajouter un cours</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : data-table -->
+  <div class="card" th:unless="${n == 0}" data-list data-list-id="cours" data-list-sort="code" data-list-page-size="10">
+    <div class="toolbar" data-list-toolbar hidden>
+      <div class="search-field">
+        <label class="sr-only" for="cours-search">Rechercher un cours</label>
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+        <input class="input input-icon" type="search" id="cours-search" data-list-search placeholder="Code, titre ou formateur" autocomplete="off">
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" data-list-reset hidden><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>Réinitialiser les filtres</button>
+    </div>
+    <div data-list-filter="formateur" data-filter-label="Formateur" data-filter-empty="Sans formateur" hidden></div>
+    <div class="result-line"><p data-list-count role="status" aria-live="polite" th:text="${n == 1 ? '1 résultat' : n + ' résultats'}">12 résultats</p></div>
+
+    <div class="table-wrap" data-list-wrap tabindex="0" role="region" aria-label="Liste des cours (défilement horizontal possible)">
+      <table class="dt" data-list-table>
+        <caption class="sr-only">Liste des cours, triable par colonne</caption>
+        <thead>
+          <tr>
+            <th scope="col" data-sort="text" data-sort-key="code">Code</th>
+            <th scope="col" data-sort="text" data-sort-key="titre">Titre</th>
+            <th scope="col" class="is-num" data-sort="num" data-sort-key="volume">Volume H.</th>
+            <th scope="col" data-sort="text" data-sort-key="formateur">Formateur</th>
+            <th scope="col" class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="c : ${cours}"
+              th:with="libelle=${(c.code ?: '') + ' - ' + (c.titre ?: '')},
+                       formLib=${c.formateur != null ? #strings.trim((c.formateur.prenom ?: '') + ' ' + (c.formateur.nom ?: '')) : null}">
+            <td class="nowrap"><span class="mono" th:text="${c.code}">INF101</span></td>
+            <td class="cell-wrap" th:text="${c.titre}">Titre</td>
+            <td class="is-num tnum" th:text="${c.volumeHoraire}">30</td>
+            <td th:attr="data-value=${formLib ?: ''}">
+              <span th:if="${formLib != null}" th:text="${formLib}">Prénom Nom</span>
+              <span th:if="${formLib == null}" class="subtle" title="Aucun formateur">—</span>
+            </td>
+            <td class="col-actions">
+              <span class="row-actions">
+                <a class="icon-btn icon-btn-sm is-primary" th:href="@{'/admin/pedagogie/cours/edit/' + ${c.id}}" title="Modifier" th:attr="aria-label=|Modifier ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-pencil"/></svg></a>
+                <form class="inline-form" th:action="@{'/admin/pedagogie/cours/delete/' + ${c.id}}" method="post" data-confirm-delete th:attr="data-confirm-label=${libelle}">
+                  <ul hidden data-confirm-items>
+                    <li th:text="|Code ${c.code} · ${c.volumeHoraire} h · ${formLib != null ? 'formateur ' + formLib : 'sans formateur'}|">Cours</li>
+                  </ul>
+                  <button type="submit" class="icon-btn icon-btn-sm is-danger" title="Supprimer" th:attr="aria-label=|Supprimer ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-trash"/></svg></button>
+                </form>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COMPOSANT : état « aucun résultat » (affiché par admin-list.js) -->
+    <div class="state" data-list-empty hidden>
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucun cours ne correspond</h2>
+      <p>Essayez avec un autre terme ou retirez un filtre pour élargir la recherche.</p>
+      <button type="button" class="btn btn-secondary" data-list-reset><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg>Réinitialiser les filtres</button>
+    </div>
+
+    <!-- COMPOSANT : pagination (construite par admin-list.js) -->
+    <nav class="pagination" data-list-pagination hidden aria-label="Pagination : liste des cours"></nav>
+  </div>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-list.js}" src="../../../static/public/js/admin-list.js" defer></script>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!-- Notes : ajout (lot 7, étape 3a) d'après la maquette admin/notes.html.
+     Inchangés : th:action, th:object « note », noms des champs, attributs de modèle du contrôleur.
+     Validation côté client, garde de sortie : admin-form.js (data-form*) ; le serveur reste l'autorité. -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Ajouter une note',
+                   description='Saisie d’une note pour un étudiant et un cours.',
+                   crumbParent='Notes', crumbParentHref=@{/admin/notes}, crumbCurrent='Ajouter',
+                   content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Ajouter une note</h1>
+      <p>Les champs marqués d’un astérisque <span aria-hidden="true">*</span><span class="sr-only">(étoile)</span> sont obligatoires.</p>
+    </div>
+  </div>
+
+  <form th:action="@{/admin/notes/add}" th:object="${note}" method="post" class="form-layout" autocomplete="off"
+        data-form data-form-guard>
+    <div class="inline-alert is-warning" data-form-dirty role="status" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><span>Vous avez des modifications non enregistrées.</span></div>
+    <div class="inline-alert is-danger" data-form-summary role="alert" tabindex="-1" hidden></div>
+
+    <fieldset class="section">
+      <legend>Évaluation</legend>
+      <p class="section-desc">Étudiant concerné et cours évalué.</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-etudiant">Étudiant <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-etudiant" th:field="*{etudiant.id}" required aria-describedby="f-etudiant-hint f-etudiant-err">
+            <option value="">Sélectionner un étudiant</option>
+            <option th:each="e : ${etudiants}" th:value="${e.id}" th:text="${(e.nom ?: '') + ' ' + (e.prenom ?: '')}"></option>
+          </select>
+          <p class="hint" id="f-etudiant-hint">Affiché sous la forme « Nom Prénom ».</p>
+          <p class="field-error" id="f-etudiant-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-cours">Cours <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-cours" th:field="*{cours.id}" required aria-describedby="f-cours-err">
+            <option value="">Sélectionner un cours</option>
+            <option th:each="c : ${coursList}" th:value="${c.id}" th:text="${c.titre}"></option>
+          </select>
+          <p class="field-error" id="f-cours-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section">
+      <legend>Résultat</legend>
+      <p class="section-desc">Session d’évaluation et note obtenue.</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-session">Session <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="text" id="f-session" th:field="*{session}" required placeholder="Ex : Session 1" aria-describedby="f-session-hint f-session-err">
+          <p class="hint" id="f-session-hint">Texte libre. Valeurs habituelles : Principale, Rattrapage, Contrôle continu.</p>
+          <p class="field-error" id="f-session-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-valeur">Valeur <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="number" id="f-valeur" th:field="*{valeur}" required min="0" max="20" step="0.01" inputmode="decimal" aria-describedby="f-valeur-hint f-valeur-err">
+          <p class="hint" id="f-valeur-hint">Note sur 20, comprise entre 0 et 20 (deux décimales au plus).</p>
+          <p class="field-error" id="f-valeur-err" hidden></p>
+        </div>
+        <div class="full"><div class="inline-alert is-info"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-info"/></svg><div>Une note enregistrée ne peut plus être modifiée : en cas d’erreur, supprimez-la puis saisissez-la de nouveau. Un e-mail de notification est envoyé à l’étudiant à l’enregistrement.</div></div></div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <span class="hint spacer">Les modifications ne sont enregistrées qu’après validation du formulaire.</span>
+      <a class="btn btn-secondary" th:href="@{/admin/notes}">Annuler</a>
+      <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Enregistrer</span></button>
+    </div>
+  </form>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-form.js}" src="../../../static/public/js/admin-form.js" defer></script>
+</th:block>
+
+</body>
+</html>

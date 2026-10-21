@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<!--
+  Gabarit de page de l'administration (lot 7) = coque de la maquette (EP.shell) :
+  lien d'évitement, sidebar, voile du tiroir mobile, barre supérieure, fil d'Ariane,
+  messages flash, contenu, pied de page, retour en haut.
+  Usage dans une page :
+    <html th:replace="~{fragments/admin-layout :: layout(title='Étudiants', crumbCurrent='Étudiants',
+                        content=~{::page}, scripts=~{::page-scripts})}">
+  « content » (obligatoire) et « scripts » (facultatif) sont des fragments de la page.
+-->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" th:fragment="layout">
+<head th:replace="~{fragments/admin :: head}"></head>
+<body>
+  <svg th:replace="~{fragments/admin :: sprite}"></svg>
+  <a class="skip-link" href="#main">Aller au contenu principal</a>
+  <div class="app" id="app">
+    <script>try{if(localStorage.getItem("ep-sidebar")==="1")document.getElementById("app").classList.add("is-collapsed");}catch(e){}</script>
+    <aside th:replace="~{fragments/admin :: sidebar}"></aside>
+    <div class="drawer-overlay" id="drawer-overlay" hidden></div>
+    <div class="shell">
+      <header th:replace="~{fragments/admin :: topbar}"></header>
+      <main id="main" tabindex="-1">
+        <nav th:replace="~{fragments/admin :: breadcrumb}"></nav>
+        <div th:replace="~{fragments/admin :: flash}"></div>
+        <th:block th:replace="${content} ?: ~{}"></th:block>
+      </main>
+      <footer th:replace="~{fragments/admin :: footer}"></footer>
+    </div>
+  </div>
+  <button th:replace="~{fragments/admin :: to-top}"></button>
+  <th:block th:replace="${scripts} ?: ~{}"></th:block>
+</body>
+</html>

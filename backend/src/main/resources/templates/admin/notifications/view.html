@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!-- Détail d'une notification (lot 7, étape 3c) d'après la maquette admin/notifications.html (#/voir/ID).
+     Attribut de modèle inchangé : « notification ». Relance : POST /retry/{id} ; suppression : POST /delete/{id} (CSRF, dialogue).
+     Aucun message d'erreur propre à la notification n'existe côté serveur : l'échec n'affiche que son statut ; le message du
+     dernier renvoi s'affiche dans le conteneur flash (success / error). -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Détail de la notification',
+                   description='Détail d’une notification : destinataire, type, date d’envoi, sujet et message.',
+                   crumbParent='Notifications', crumbParentHref=@{/admin/notifications}, crumbCurrent='Détail',
+                   content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page"
+         th:with="st=${notification.statut != null ? notification.statut.name() : ''},
+                  ty=${notification.type != null ? notification.type.name() : ''},
+                  libelle=${(notification.sujet ?: '—') + ' (' + (notification.destinataireNom ?: '—') + ')'},
+                  dateFr=${notification.dateEnvoi != null ? #temporals.format(notification.dateEnvoi, 'dd/MM/yyyy') + ' à ' + #temporals.format(notification.dateEnvoi, 'HH:mm') : '—'}">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1" th:text="${notification.sujet ?: 'Notification'}">Sujet</h1>
+      <p th:text="|Envoyée le ${dateFr}|">Envoyée le 15/10/2026 à 10:00</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-secondary" th:href="@{/admin/notifications}"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-arrow-left"/></svg>Retour à la liste</a>
+    </div>
+  </div>
+
+  <div class="inline-alert is-success" role="status" th:if="${st == 'ENVOYE'}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-circle-check"/></svg><div><strong>Envoyée avec succès</strong></div></div>
+  <div class="inline-alert is-danger" role="status" th:if="${st == 'ECHEC'}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert-circle"/></svg><div><strong>Échec de l’envoi</strong></div></div>
+  <div class="inline-alert is-warning" role="status" th:if="${st == 'EN_ATTENTE'}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-clock"/></svg><div><strong>En attente d’envoi</strong></div></div>
+
+  <div class="card card-pad n-card">
+    <div class="card-head"><h2>Informations</h2></div>
+    <dl class="kv">
+      <div><dt>Destinataire</dt><dd th:text="${notification.destinataireNom ?: '—'}">Nom</dd></div>
+      <div><dt>Adresse e-mail</dt><dd th:text="${notification.destinataireEmail ?: '—'}">email@exemple.fr</dd></div>
+      <div><dt>Type</dt><dd th:text="${ty == 'EMAIL' ? 'E-mail' : (ty == 'SYSTEM' ? 'Notification système' : '—')}">E-mail</dd></div>
+      <div><dt>Date d’envoi</dt><dd th:text="${dateFr}">15/10/2026 à 10:00</dd></div>
+      <div class="n-full"><dt>Sujet</dt><dd th:text="${notification.sujet ?: '—'}">Sujet</dd></div>
+    </dl>
+  </div>
+
+  <div class="card card-pad n-card">
+    <div class="card-head"><h2 id="n-msg">Message</h2></div>
+    <div class="prose-block" role="region" aria-labelledby="n-msg" tabindex="0" th:text="${notification.message}">Contenu du message…</div>
+  </div>
+
+  <div class="page-actions n-card">
+    <form class="inline-form" th:if="${st == 'ECHEC'}" th:action="@{/admin/notifications/retry/{id}(id=${notification.id})}" method="post">
+      <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg><span>Réessayer l’envoi</span></button>
+    </form>
+    <form class="inline-form" th:action="@{/admin/notifications/delete/{id}(id=${notification.id})}" method="post" data-confirm-delete
+          th:attr="data-confirm-label=${libelle},data-confirm-title='Supprimer cette notification ?'">
+      <ul hidden data-confirm-items>
+        <li th:text="|Destinataire : ${notification.destinataireNom ?: '—'} (${notification.destinataireEmail ?: '—'}).|">Destinataire</li>
+        <li th:text="|Envoi du ${dateFr}.|">Envoi</li>
+      </ul>
+      <button type="submit" class="btn btn-danger"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-trash"/></svg><span>Supprimer</span></button>
+    </form>
+  </div>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-list.js}" src="../../../static/public/js/admin-list.js" defer></script>
+</th:block>
+
+</body>
+</html>

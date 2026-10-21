@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!-- Utilisateurs : ajout (lot 7, étape 3a) d'après la maquette admin/utilisateurs.html.
+     Inchangés : th:action, th:object « user », noms des champs, attributs de modèle du contrôleur.
+     Validation côté client, garde de sortie et jauge de mot de passe : admin-form.js (data-form*) ; le serveur reste l'autorité. -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Ajouter un utilisateur',
+                   description='Compte utilisateur, mot de passe et rôles.',
+                   crumbParent='Utilisateurs', crumbParentHref=@{/admin/utilisateurs}, crumbCurrent='Ajouter',
+                   content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Ajouter un utilisateur</h1>
+      <p>Les champs marqués d’un astérisque <span aria-hidden="true">*</span><span class="sr-only">(étoile)</span> sont obligatoires.</p>
+    </div>
+  </div>
+
+  <form th:action="@{/admin/utilisateurs/add}" th:object="${user}" method="post" class="form-layout" autocomplete="off"
+        data-form data-form-guard>
+    <div class="inline-alert is-warning" data-form-dirty role="status" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><span>Vous avez des modifications non enregistrées.</span></div>
+    <div class="inline-alert is-danger" data-form-summary role="alert" tabindex="-1" hidden></div>
+
+    <fieldset class="section">
+      <legend>Compte</legend>
+      <p class="section-desc">Identifiants de connexion.</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-username">Nom d’utilisateur <span class="req" aria-hidden="true">*</span></label>
+          <input class="input mono" type="text" id="f-username" th:field="*{username}" required autocomplete="off" spellcheck="false" aria-describedby="f-username-err">
+          <p class="field-error" id="f-username-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-password">Mot de passe <span class="req" aria-hidden="true">*</span></label>
+          <div class="pwd-wrap">
+            <input class="input" type="password" id="f-password" th:field="*{password}" required autocomplete="new-password"
+                   data-password-meter aria-describedby="f-password-hint f-password-str f-password-tips f-password-err">
+            <button type="button" class="icon-btn" data-pwd-toggle aria-controls="f-password" aria-pressed="false" aria-label="Afficher le mot de passe"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-eye"/></svg></button>
+          </div>
+          <div class="meter" data-meter data-score="0" aria-hidden="true" hidden><span></span><span></span><span></span><span></span></div>
+          <p class="hint" id="f-password-str" data-meter-text aria-live="polite" hidden></p>
+          <p class="hint" id="f-password-tips" data-meter-tips hidden></p>
+          <p class="hint" id="f-password-hint">Enregistré chiffré.</p>
+          <p class="field-error" id="f-password-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section">
+      <legend>Rôles</legend>
+      <p class="section-desc">Droits d’accès accordés à l’utilisateur.</p>
+      <div class="grid-2">
+        <fieldset class="field field-group full" id="f-roleIds" data-checkgroup data-required data-msg-required="Choisissez au moins un rôle." aria-describedby="f-roleIds-hint f-roleIds-err">
+          <legend class="label">Rôles <span class="req" aria-hidden="true">*</span></legend>
+          <div class="cbx-group">
+            <label class="check" th:each="r : ${roles}" th:for="|f-role-${r.id}|"><input type="checkbox" name="roleIds" th:id="|f-role-${r.id}|" th:value="${r.id}"><span th:text="${r.name}">ADMIN</span></label>
+            <span class="hint" th:if="${#lists.isEmpty(roles)}">Aucun rôle disponible.</span>
+          </div>
+          <p class="hint" id="f-roleIds-hint">Plusieurs rôles peuvent être attribués.</p>
+          <p class="field-error" id="f-roleIds-err" hidden></p>
+        </fieldset>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <span class="hint spacer">Les modifications ne sont enregistrées qu’après validation du formulaire.</span>
+      <a class="btn btn-secondary" th:href="@{/admin/utilisateurs}">Annuler</a>
+      <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Enregistrer</span></button>
+    </div>
+  </form>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-form.js}" src="../../../static/public/js/admin-form.js" defer></script>
+</th:block>
+
+</body>
+</html>

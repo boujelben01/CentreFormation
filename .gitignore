@@ -1,0 +1,85 @@
+# ==========================================================
+# Maven / Java
+# ==========================================================
+target/
+**/.mvn/wrapper/*.jar
+*.class
+hs_err_pid*
+HELP.md
+# Wrapper Maven a conserver
+!mvnw
+!mvnw.cmd
+!.mvn/wrapper/maven-wrapper.properties
+!**/.mvn/wrapper/maven-wrapper.properties
+
+# ==========================================================
+# Node / Vite
+# ==========================================================
+node_modules/
+dist/
+dist-ssr/
+build/
+.vite/
+coverage/
+*.tsbuildinfo
+# Un seul gestionnaire de paquets : npm (package-lock.json versionne)
+bun.lockb
+bun.lock
+yarn.lock
+pnpm-lock.yaml
+npm-debug.log*
+
+# ==========================================================
+# Environnement et secrets
+# ==========================================================
+.env
+.env.*
+!.env.example
+application-local.properties
+application-local.yml
+application-secret.properties
+*.pem
+*.key
+*.p12
+*.jks
+*.crt
+
+# ==========================================================
+# Outils (Claude Code / oh-my-claudecode)
+# ==========================================================
+.claude/settings.local.json
+.omc/
+
+# Rapports générés localement (à retirer si vous voulez les versionner)
+# DESIGN_AUDIT.md
+# PORTAGE_PLAN.md
+
+# ==========================================================
+# Éditeurs / IDE
+# ==========================================================
+.vscode/
+.idea/
+*.iml
+*.swp
+
+# ==========================================================
+# Système
+# ==========================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==========================================================
+# Logs, dumps, sauvegardes, temporaires
+# ==========================================================
+*.log
+logs/
+*.sql
+*.bak
+*.dump
+*.tmp
+*.zip
+*.rar
+
+# Fichiers uploades a l'execution
+uploads/

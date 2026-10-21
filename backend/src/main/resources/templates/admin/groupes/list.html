@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!-- Groupes : liste (lot 7, étape 3a) d'après la maquette admin/groupes.html ; patron : GUIDE-ADMIN-MODULE.md.
+     Attribut de modèle inchangé : « groupes ». Le serveur envoie TOUTES les lignes ; recherche, tri, filtres et
+     pagination : admin-list.js (data-list*). Suppression : formulaire POST (th:action, CSRF) + dialogue (data-confirm-delete). -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Groupes',
+                   description='Liste des groupes : recherche, tri, filtres par session et spécialité, ajout, modification et suppression.',
+                   crumbCurrent='Groupes', content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page"
+         th:with="n=${groupes == null ? 0 : #lists.size(groupes)}">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Groupes</h1>
+      <p id="list-sub" th:text="${n == 0 ? 'Aucun groupe' : (n == 1 ? '1 groupe' : n + ' groupes')}">12 groupes</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-primary" th:href="@{/admin/pedagogie/groupes/add}"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg>Ajouter un groupe</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : empty-state (liste vide côté serveur) -->
+  <div class="card" th:if="${n == 0}">
+    <div class="state">
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucun groupe pour le moment</h2>
+      <p>Cette liste est vide. Ajoutez un premier groupe pour commencer.</p>
+      <a class="btn btn-secondary" th:href="@{/admin/pedagogie/groupes/add}">Ajouter un groupe</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : data-table -->
+  <div class="card" th:unless="${n == 0}" data-list data-list-id="groupes" data-list-sort="nom" data-list-page-size="10">
+    <div class="toolbar" data-list-toolbar hidden>
+      <div class="search-field">
+        <label class="sr-only" for="groupes-search">Rechercher un groupe</label>
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+        <input class="input input-icon" type="search" id="groupes-search" data-list-search placeholder="Nom, session, formateur ou spécialité" autocomplete="off">
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" data-list-reset hidden><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>Réinitialiser les filtres</button>
+    </div>
+    <div data-list-filter="session" data-filter-label="Session pédagogique" data-filter-empty="Sans session" hidden></div>
+    <div data-list-filter="specialite" data-filter-label="Spécialité" data-filter-empty="Sans spécialité" hidden></div>
+    <div class="result-line"><p data-list-count role="status" aria-live="polite" th:text="${n == 1 ? '1 résultat' : n + ' résultats'}">12 résultats</p></div>
+
+    <div class="table-wrap" data-list-wrap tabindex="0" role="region" aria-label="Liste des groupes (défilement horizontal possible)">
+      <table class="dt" data-list-table>
+        <caption class="sr-only">Liste des groupes, triable par colonne</caption>
+        <thead>
+          <tr>
+            <th scope="col" data-sort="text" data-sort-key="nom">Nom</th>
+            <th scope="col" data-sort="text" data-sort-key="session">Session pédagogique</th>
+            <th scope="col" data-sort="text" data-sort-key="formateur">Formateur responsable</th>
+            <th scope="col" data-sort="text" data-sort-key="specialite">Spécialité</th>
+            <th scope="col" class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="g : ${groupes}"
+              th:with="libelle=${g.nom ?: ''},
+                       sessLib=${g.sessionPedagogique != null ? (g.sessionPedagogique.anneeScolaire ?: '') + ' - ' + (g.sessionPedagogique.semestre ?: '') : null},
+                       formLib=${g.formateur != null ? #strings.trim((g.formateur.prenom ?: '') + ' ' + (g.formateur.nom ?: '')) : null},
+                       specNom=${g.specialite != null ? g.specialite.nom : null}">
+            <td class="cell-wrap" th:text="${g.nom}">Nom</td>
+            <td class="nowrap" th:attr="data-value=${sessLib ?: ''}">
+              <span th:if="${sessLib != null}" th:text="${sessLib}">2026-2027 - Semestre 1</span>
+              <span th:if="${sessLib == null}" class="subtle">—</span>
+            </td>
+            <td th:attr="data-value=${formLib ?: ''}">
+              <span th:if="${formLib != null}" th:text="${formLib}">Prénom Nom</span>
+              <span th:if="${formLib == null}" class="subtle">—</span>
+            </td>
+            <td th:attr="data-value=${specNom ?: ''}">
+              <span th:if="${specNom != null}" class="badge badge-neutral badge--wrap" th:text="${specNom}">Spécialité</span>
+              <span th:if="${specNom == null}" class="subtle">—</span>
+            </td>
+            <td class="col-actions">
+              <span class="row-actions">
+                <a class="icon-btn icon-btn-sm is-primary" th:href="@{'/admin/pedagogie/groupes/edit/' + ${g.id}}" title="Modifier" th:attr="aria-label=|Modifier ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-pencil"/></svg></a>
+                <form class="inline-form" th:action="@{'/admin/pedagogie/groupes/delete/' + ${g.id}}" method="post" data-confirm-delete th:attr="data-confirm-label=${libelle}">
+                  <ul hidden data-confirm-items>
+                    <li th:text="|${sessLib != null ? 'Session ' + sessLib : 'Sans session'} · ${formLib != null ? 'formateur responsable ' + formLib : 'sans formateur responsable'}|">Rattachement</li>
+                    <li th:if="${g.cours != null}" th:text="|Cours rattaché : ${g.cours.code} - ${g.cours.titre}. Le cours lui-même n’est pas supprimé.|">Cours</li>
+                  </ul>
+                  <button type="submit" class="icon-btn icon-btn-sm is-danger" title="Supprimer" th:attr="aria-label=|Supprimer ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-trash"/></svg></button>
+                </form>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COMPOSANT : état « aucun résultat » (affiché par admin-list.js) -->
+    <div class="state" data-list-empty hidden>
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucun groupe ne correspond</h2>
+      <p>Essayez avec un autre terme ou retirez un filtre pour élargir la recherche.</p>
+      <button type="button" class="btn btn-secondary" data-list-reset><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg>Réinitialiser les filtres</button>
+    </div>
+
+    <!-- COMPOSANT : pagination (construite par admin-list.js) -->
+    <nav class="pagination" data-list-pagination hidden aria-label="Pagination : liste des groupes"></nav>
+  </div>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-list.js}" src="../../../static/public/js/admin-list.js" defer></script>
+</th:block>
+
+</body>
+</html>

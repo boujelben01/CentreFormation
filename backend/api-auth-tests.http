@@ -1,0 +1,80 @@
+### Login API Endpoint Test
+### Test JWT-based authentication
+
+### Register as Etudiant
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "newstudent",
+  "password": "password123",
+  "userType": "ETUDIANT",
+  "matricule": "ETU2026001",
+  "nom": "Dupont",
+  "prenom": "Jean",
+  "email": "jean.dupont@example.com"
+}
+
+###
+
+### Register as Formateur
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "newteacher",
+  "password": "password123",
+  "userType": "FORMATEUR",
+  "nom": "Martin",
+  "prenom": "Marie",
+  "email": "marie.martin@example.com",
+  "specialiteId": 1
+}
+
+###
+
+### Login as Admin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+###
+
+### Login as Formateur
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "formateur1",
+  "password": "password"
+}
+
+###
+
+### Login as Etudiant
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "etudiant1",
+  "password": "password"
+}
+
+###
+
+### Test protected endpoint with JWT token
+### Replace YOUR_JWT_TOKEN with the token from login response
+GET http://localhost:8080/api/etudiant/cours
+Authorization: Bearer YOUR_JWT_TOKEN
+
+###
+
+### Test formateur endpoint with JWT token
+GET http://localhost:8080/api/formateur/groupes
+Authorization: Bearer YOUR_JWT_TOKEN
+
+###

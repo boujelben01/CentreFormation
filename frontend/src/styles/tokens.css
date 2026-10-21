@@ -1,0 +1,540 @@
+/* EduPortal — tokens (portés depuis maquettes tokens.css v1.1, sections 1 à 8).
+   Thème clair par défaut ; sombre UNIQUEMENT via <html data-theme="dark">
+   (aucune bascule selon prefers-color-scheme). Reset/base : voir index.css. */
+
+/* ==========================================================================
+   1. PALETTE BRUTE (primitives)
+   ========================================================================== */
+:root {
+  /* Primaire — bleu (départ #2563EB = 600) */
+  --blue-50:  #EFF6FF;
+  --blue-100: #DBEAFE;
+  --blue-200: #BFDBFE;
+  --blue-300: #93C5FD;
+  --blue-400: #60A5FA;
+  --blue-500: #3B82F6;
+  --blue-600: #2563EB;
+  --blue-700: #1D4ED8;
+  --blue-800: #1E40AF;
+  --blue-900: #1E3A8A;
+
+  /* Neutres — ardoise légèrement teintée bleu */
+  --neutral-50:  #F8FAFC;
+  --neutral-100: #F1F5F9;
+  --neutral-200: #E2E8F0;
+  --neutral-300: #CBD5E1;
+  --neutral-400: #94A3B8;
+  --neutral-500: #64748B;
+  --neutral-600: #475569;
+  --neutral-700: #334155;
+  --neutral-800: #1E293B;
+  --neutral-900: #0F172A;
+  --neutral-950: #0B1220;
+
+  /* Succès */
+  --green-50:  #F0FDF4;
+  --green-100: #DCFCE7;
+  --green-500: #22C55E;
+  --green-600: #16A34A;
+  --green-700: #15803D;
+
+  /* Avertissement — ambre (accent : parcimonie) */
+  --amber-50:  #FFFBEB;
+  --amber-100: #FEF3C7;
+  --amber-500: #F59E0B;
+  --amber-600: #D97706;
+  --amber-700: #B45309;
+  --amber-800: #92400E; /* texte sur amber-100 : 6.37 */
+
+  /* Danger */
+  --red-50:  #FEF2F2;
+  --red-100: #FEE2E2;
+  --red-500: #EF4444;
+  --red-600: #DC2626;
+  --red-700: #B91C1C;
+
+  /* Info — bleu ciel (distinct du primaire) : famille complète 50-900 */
+  --sky-50:  #F0F9FF;
+  --sky-100: #E0F2FE;
+  --sky-200: #BAE6FD;
+  --sky-300: #7DD3FC;
+  --sky-400: #38BDF8;
+  --sky-500: #0EA5E9;
+  --sky-600: #0284C7;
+  --sky-700: #0369A1;
+  --sky-800: #075985;
+  --sky-900: #0C4A6E;
+
+  /* Secondaire — teal (sarcelle) */
+  --teal-50:  #F0FDFA;
+  --teal-100: #CCFBF1;
+  --teal-200: #99F6E4;
+  --teal-300: #5EEAD4;
+  --teal-400: #2DD4BF;
+  --teal-500: #14B8A6;
+  --teal-600: #0D9488;
+  --teal-700: #0F766E;
+  --teal-800: #115E59;
+  --teal-900: #134E4A;
+
+  /* Tertiaire — corail (orange-rouge chaud, teinte ~11°, distinct du rouge danger ~0°). Aucun violet. */
+  --coral-50:  #FFF3F0;
+  --coral-100: #FFE4DD;
+  --coral-200: #FFC9BA;
+  --coral-300: #FFA38C;
+  --coral-400: #FA7A5C;
+  --coral-500: #EB5A3A;
+  --coral-600: #D4442A;
+  --coral-700: #B53520;
+  --coral-800: #922C1D;
+  --coral-900: #772A1C;
+
+  /* Compléments (avatars, graphiques) : vert foncé, olive */
+  --green-300: #86EFAC;
+  --green-800: #166534;
+  --green-900: #14532D;
+  --lime-100: #ECFCCB;
+  --lime-300: #BEF264;
+  --lime-400: #A3E635;
+  --lime-700: #4D7C0F;
+  --lime-800: #3F6212;
+
+  color-scheme: light;
+}
+
+
+/* ==========================================================================
+   2. TOKENS SÉMANTIQUES — THÈME CLAIR (défaut)
+   ========================================================================== */
+:root {
+  /* Surfaces & bordures */
+  --bg:             #F8FAFC;   /* fond de page */
+  --surface:        #FFFFFF;   /* cartes, tableaux, panneaux */
+  --surface-2:      #F1F5F9;   /* zones secondaires, en-têtes de tableau, hover de ligne */
+  --surface-sunken: #E2E8F0;   /* champs désactivés, pistes de progression */
+  --border:         #E2E8F0;   /* séparateurs décoratifs, cartes */
+  --border-strong:  #7C8CA3;   /* bordures de champs/contrôles (3.42:1) */
+  --overlay:        rgba(15, 23, 42, 0.55); /* fond de modale / drawer */
+  --media-scrim:    rgba(15, 23, 42, 0.40); /* voile haut de photo (badges superposés) */
+
+  /* Texte */
+  --text:           #0F172A;
+  --text-muted:     #475569;
+  --text-subtle:    #5B6B80;   /* méta, placeholder, légendes (≥ 4.97:1) */
+  --text-disabled:  #94A3B8;   /* désactivé : exempté d'AA, ne pas porter d'info vitale */
+  --text-inverse:   #F8FAFC;   /* texte sur fond --text */
+
+  /* Primaire */
+  --primary:           #2563EB;
+  --primary-hover:     #1D4ED8;
+  --primary-active:    #1E40AF;
+  --primary-contrast:  #FFFFFF;   /* texte sur --primary (5.17:1) */
+  --primary-text:      #1D4ED8;   /* liens et texte primaire sur surface (6.70:1) */
+  --primary-soft:      #EFF6FF;   /* fond doux : item actif, badge, sélection */
+  --primary-soft-hover:#DBEAFE;
+  --primary-soft-text: #1D4ED8;
+  --primary-border:    #BFDBFE;
+  --focus-ring:        #2563EB;   /* anneau de focus (5.17:1 sur surface) */
+  --focus-ring-offset: #FFFFFF;
+  --selection-bg:      #BFDBFE;
+  --selection-text:    #0F172A;
+
+  /* Accent (ambre) — fond + texte foncé uniquement */
+  --accent:          #F59E0B;
+  --accent-contrast: #0F172A;     /* 8.31:1 sur --accent */
+  --accent-soft:     #FEF3C7;
+  --accent-text:     #92400E;     /* texte accent sur clair (6.37:1 sur accent-soft) */
+
+  /* Statuts : -bg (fond doux), -border, -text (sur -bg ET surface), -solid (aplat), -on-solid */
+  --success-bg:     #F0FDF4;  --success-bg-strong: #DCFCE7;
+  --success-border: #86EFAC;  --success-text: #15803D;
+  --success-solid:  #15803D;  --success-on-solid: #FFFFFF;
+  --success-500:    #22C55E;  --success-600: #16A34A;  --success-700: #15803D;
+
+  --warning-bg:     #FFFBEB;  --warning-bg-strong: #FEF3C7;
+  --warning-border: #FCD34D;  --warning-text: #92400E;
+  --warning-solid:  #F59E0B;  --warning-on-solid: #0F172A; /* texte FONCÉ sur ambre */
+  --warning-500:    #F59E0B;  --warning-600: #D97706;  --warning-700: #B45309;
+
+  --danger-bg:      #FEF2F2;  --danger-bg-strong: #FEE2E2;
+  --danger-border:  #FCA5A5;  --danger-text: #B91C1C;
+  --danger-solid:   #DC2626;  --danger-solid-hover: #B91C1C;  --danger-on-solid: #FFFFFF;
+  --danger-500:     #EF4444;  --danger-600: #DC2626;  --danger-700: #B91C1C;
+
+  --info-bg:        #F0F9FF;  --info-bg-strong: #E0F2FE;
+  --info-border:    #7DD3FC;  --info-text: #0369A1;
+  --info-solid:     #0369A1;  --info-on-solid: #FFFFFF;
+  /* Échelle info complète = famille sky (pas de doublon) */
+  --info-50: var(--sky-50);   --info-100: var(--sky-100); --info-200: var(--sky-200);
+  --info-300: var(--sky-300); --info-400: var(--sky-400); --info-500: var(--sky-500);
+  --info-600: var(--sky-600); --info-700: var(--sky-700); --info-800: var(--sky-800);
+  --info-900: var(--sky-900);
+
+  /* Secondaire — teal : -bg / -bg-strong (fonds doux), -border, -text (sur -bg ET surface),
+     -solid (aplat, texte --secondary-on-solid), -solid-hover. Jamais un bouton primaire. */
+  --secondary-50: var(--teal-50);   --secondary-100: var(--teal-100); --secondary-200: var(--teal-200);
+  --secondary-300: var(--teal-300); --secondary-400: var(--teal-400); --secondary-500: var(--teal-500);
+  --secondary-600: var(--teal-600); --secondary-700: var(--teal-700); --secondary-800: var(--teal-800);
+  --secondary-900: var(--teal-900);
+  --secondary-bg:     #F0FDFA;  --secondary-bg-strong: #CCFBF1;
+  --secondary-border: #99F6E4;  --secondary-text: #115E59;
+  --secondary-solid:  #0F766E;  --secondary-solid-hover: #115E59;  --secondary-on-solid: #FFFFFF;
+
+  /* Tertiaire — corail : mêmes rôles que le secondaire */
+  --tertiary-50: var(--coral-50);   --tertiary-100: var(--coral-100); --tertiary-200: var(--coral-200);
+  --tertiary-300: var(--coral-300); --tertiary-400: var(--coral-400); --tertiary-500: var(--coral-500);
+  --tertiary-600: var(--coral-600); --tertiary-700: var(--coral-700); --tertiary-800: var(--coral-800);
+  --tertiary-900: var(--coral-900);
+  --tertiary-bg:     #FFF3F0;  --tertiary-bg-strong: #FFE4DD;
+  --tertiary-border: #FFC9BA;  --tertiary-text: #922C1D;
+  --tertiary-solid:  #B53520;  --tertiary-solid-hover: #922C1D;  --tertiary-on-solid: #FFFFFF;
+
+  /* Catégories de formations (ids de client/data.js : dev, data, design, gestion, langues, reseaux).
+     -bg + -text : badge ; -solid + -on-solid : aplat (puces, filets) ; -border : contour de badge. */
+  --cat-dev-bg:      #EFF6FF;  --cat-dev-text:      #1E40AF;  --cat-dev-solid:      #2563EB;  --cat-dev-border:      #BFDBFE;  --cat-dev-on-solid:      #FFFFFF;
+  --cat-data-bg:     #F0FDFA;  --cat-data-text:     #115E59;  --cat-data-solid:     #0F766E;  --cat-data-border:     #99F6E4;  --cat-data-on-solid:     #FFFFFF;
+  --cat-langues-bg:  #F0FDF4;  --cat-langues-text:  #166534;  --cat-langues-solid:  #15803D;  --cat-langues-border:  #86EFAC;  --cat-langues-on-solid:  #FFFFFF;
+  --cat-gestion-bg:  #FFF3F0;  --cat-gestion-text:  #922C1D;  --cat-gestion-solid:  #B53520;  --cat-gestion-border:  #FFC9BA;  --cat-gestion-on-solid:  #FFFFFF;
+  --cat-design-bg:   #F0F9FF;  --cat-design-text:   #075985;  --cat-design-solid:   #0369A1;  --cat-design-border:   #BAE6FD;  --cat-design-on-solid:   #FFFFFF;
+  --cat-reseaux-bg:  #F1F5F9;  --cat-reseaux-text:  #334155;  --cat-reseaux-solid:  #475569;  --cat-reseaux-border:  #CBD5E1;  --cat-reseaux-on-solid:  #FFFFFF;
+
+  /* Icônes / cartes de statistiques (KPI) : pastille -bg + icône -fg */
+  --stat-primary-bg:   #DBEAFE;  --stat-primary-fg:   #1D4ED8;
+  --stat-secondary-bg: #CCFBF1;  --stat-secondary-fg: #115E59;
+  --stat-tertiary-bg:  #FFE4DD;  --stat-tertiary-fg:  #922C1D;
+  --stat-info-bg:      #E0F2FE;  --stat-info-fg:      #0369A1;
+  --stat-accent-bg:    #FEF3C7;  --stat-accent-fg:    #92400E;
+  --stat-success-bg:   #DCFCE7;  --stat-success-fg:   #15803D;
+
+  /* Avatars : 8 teintes, index = hash du nom (EPC.avatar). Fond doux + texte AA. */
+  --avatar-1-bg: #DBEAFE;  --avatar-1-fg: #1E40AF;   /* bleu */
+  --avatar-2-bg: #CCFBF1;  --avatar-2-fg: #115E59;   /* teal */
+  --avatar-3-bg: #FFE4DD;  --avatar-3-fg: #922C1D;   /* corail */
+  --avatar-4-bg: #E0F2FE;  --avatar-4-fg: #075985;   /* ciel */
+  --avatar-5-bg: #DCFCE7;  --avatar-5-fg: #166534;   /* vert */
+  --avatar-6-bg: #FEF3C7;  --avatar-6-fg: #92400E;   /* ambre */
+  --avatar-7-bg: #ECFCCB;  --avatar-7-fg: #3F6212;   /* olive */
+  --avatar-8-bg: #E2E8F0;  --avatar-8-fg: #334155;   /* ardoise */
+
+  /* Sidebar (admin & client) — CLAIRE en thème clair : fond blanc, bordure grise douce,
+     survol gris très clair, item actif bleu doux. Textes dédiés (ratios en en-tête). */
+  --sidebar-bg:          #FFFFFF;
+  --sidebar-border:      #E2E8F0;
+  --sidebar-item-hover:  #F1F5F9;
+  --sidebar-item-active-bg:   #EFF6FF;
+  --sidebar-item-active-text: #1D4ED8;
+  --sidebar-text:        #475569;   /* item au repos : 7.58 / 6.92 au survol */
+  --sidebar-text-strong: #0F172A;   /* item survolé, nom de marque */
+  --sidebar-group:       #5B6B80;   /* titres de groupe : 5.44 */
+
+  /* Ombres (valeurs section 7) — composées ici pour le thème */
+  --shadow-color: 15 23 42;   /* RGB de l'encre d'ombre (utilisé en rgb(var(--shadow-color) / a)) */
+}
+
+
+/* ==========================================================================
+   3. THÈME SOMBRE — complet
+      Appliqué UNIQUEMENT par <html data-theme="dark">. Il n'y a plus de
+      bascule automatique selon prefers-color-scheme : au premier lancement
+      l'interface est toujours claire (le bloc @media (prefers-color-scheme:
+      dark) a été supprimé en v1.1). Le choix de l'utilisateur est mémorisé
+      (localStorage « ep-theme ») et réappliqué par un script inline en <head>.
+   ========================================================================== */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:             #0B1220;
+  --surface:        #111A2C;
+  --surface-2:      #18233A;
+  --surface-sunken: #0E1626;
+  --border:         #243049;
+  --border-strong:  #64748B;   /* 3.65:1 sur surface */
+  --overlay:        rgba(2, 6, 14, 0.72);
+  --media-scrim:    rgba(2, 6, 14, 0.50);
+
+  --text:           #F1F5F9;
+  --text-muted:     #A5B4C8;
+  --text-subtle:    #8493AA;
+  --text-disabled:  #5B6B80;
+  --text-inverse:   #0B1220;
+
+  --primary:           #2563EB;   /* garde le blanc lisible (5.17:1) */
+  --primary-hover:     #1D4ED8;
+  --primary-active:    #1E40AF;
+  --primary-contrast:  #FFFFFF;
+  --primary-text:      #60A5FA;   /* liens sur surface sombre (6.84:1) */
+  --primary-soft:      #14274D;
+  --primary-soft-hover:#1B3466;
+  --primary-soft-text: #93C5FD;
+  --primary-border:    #1E40AF;
+  --focus-ring:        #60A5FA;
+  --focus-ring-offset: #0B1220;
+  --selection-bg:      #1E40AF;
+  --selection-text:    #F8FAFC;
+
+  --accent:          #FBBF24;
+  --accent-contrast: #0B1220;
+  --accent-soft:     #33260A;
+  --accent-text:     #FBBF24;
+
+  --success-bg:     #12301F;  --success-bg-strong: #174A2B;
+  --success-border: #1E6B3C;  --success-text: #4ADE80;
+  --success-solid:  #22C55E;  --success-on-solid: #0B1220;
+
+  --warning-bg:     #33260A;  --warning-bg-strong: #4A350B;
+  --warning-border: #7A5A10;  --warning-text: #FBBF24;
+  --warning-solid:  #FBBF24;  --warning-on-solid: #0B1220;
+
+  --danger-bg:      #3A1416;  --danger-bg-strong: #521A1D;
+  --danger-border:  #8A2A2E;  --danger-text: #F87171;
+  --danger-solid:   #DC2626;  --danger-solid-hover: #B91C1C;  --danger-on-solid: #FFFFFF;
+
+  --info-bg:        #0C2A3D;  --info-bg-strong: #0F3A55;
+  --info-border:    #0B5A85;  --info-text: #38BDF8;
+  --info-solid:     #0284C7;  --info-on-solid: #FFFFFF;  /* 4.10 : usage gras/grand texte uniquement */
+
+  --secondary-bg:     #0B2B29;  --secondary-bg-strong: #0F3D39;
+  --secondary-border: #115E59;  --secondary-text: #5EEAD4;
+  --secondary-solid:  #2DD4BF;  --secondary-solid-hover: #5EEAD4;  --secondary-on-solid: #0B1220;
+
+  --tertiary-bg:     #331510;  --tertiary-bg-strong: #4A1D14;
+  --tertiary-border: #922C1D;  --tertiary-text: #FFA38C;
+  --tertiary-solid:  #FA7A5C;  --tertiary-solid-hover: #FFA38C;  --tertiary-on-solid: #0B1220;
+
+  --cat-dev-bg:      #14274D;  --cat-dev-text:      #93C5FD;  --cat-dev-solid:      #60A5FA;  --cat-dev-border:      #1E40AF;  --cat-dev-on-solid:      #0B1220;
+  --cat-data-bg:     #0B2B29;  --cat-data-text:     #5EEAD4;  --cat-data-solid:     #2DD4BF;  --cat-data-border:     #115E59;  --cat-data-on-solid:     #0B1220;
+  --cat-langues-bg:  #12301F;  --cat-langues-text:  #86EFAC;  --cat-langues-solid:  #4ADE80;  --cat-langues-border:  #1E6B3C;  --cat-langues-on-solid:  #0B1220;
+  --cat-gestion-bg:  #331510;  --cat-gestion-text:  #FFA38C;  --cat-gestion-solid:  #FA7A5C;  --cat-gestion-border:  #922C1D;  --cat-gestion-on-solid:  #0B1220;
+  --cat-design-bg:   #0C2A3D;  --cat-design-text:   #7DD3FC;  --cat-design-solid:   #38BDF8;  --cat-design-border:   #0B5A85;  --cat-design-on-solid:   #0B1220;
+  --cat-reseaux-bg:  #1E293B;  --cat-reseaux-text:  #CBD5E1;  --cat-reseaux-solid:  #94A3B8;  --cat-reseaux-border:  #334155;  --cat-reseaux-on-solid:  #0B1220;
+
+  --stat-primary-bg:   #1B3466;  --stat-primary-fg:   #93C5FD;
+  --stat-secondary-bg: #0F3D39;  --stat-secondary-fg: #5EEAD4;
+  --stat-tertiary-bg:  #4A1D14;  --stat-tertiary-fg:  #FFA38C;
+  --stat-info-bg:      #0F3A55;  --stat-info-fg:      #38BDF8;
+  --stat-accent-bg:    #4A350B;  --stat-accent-fg:    #FBBF24;
+  --stat-success-bg:   #174A2B;  --stat-success-fg:   #4ADE80;
+
+  --avatar-1-bg: #1B3466;  --avatar-1-fg: #BFDBFE;
+  --avatar-2-bg: #0F3D39;  --avatar-2-fg: #99F6E4;
+  --avatar-3-bg: #4A1D14;  --avatar-3-fg: #FFC9BA;
+  --avatar-4-bg: #0F3A55;  --avatar-4-fg: #BAE6FD;
+  --avatar-5-bg: #174A2B;  --avatar-5-fg: #86EFAC;
+  --avatar-6-bg: #4A350B;  --avatar-6-fg: #FDE68A;
+  --avatar-7-bg: #2C3D0E;  --avatar-7-fg: #D9F99D;
+  --avatar-8-bg: #243049;  --avatar-8-fg: #E2E8F0;
+
+  --sidebar-bg:          #0E1626;
+  --sidebar-border:      #243049;
+  --sidebar-item-hover:  #18233A;
+  --sidebar-item-active-bg:   #14274D;
+  --sidebar-item-active-text: #93C5FD;
+  --sidebar-text:        #A5B4C8;
+  --sidebar-text-strong: #F1F5F9;
+  --sidebar-group:       #8493AA;
+
+  --shadow-color: 0 0 0;
+
+  /* graphiques (section 4) */
+  --chart-1: #60A5FA; --chart-2: #FA7A5C; --chart-3: #2DD4BF;
+  --chart-4: #FBBF24; --chart-5: #7DD3FC; --chart-6: #94A3B8;
+  --chart-7: #4ADE80; --chart-8: #A3E635;
+  --chart-grid: #243049; --chart-axis: #8493AA;
+
+  /* visuels formations (section 5) : 4 = corail (gestion), 5 = ciel (design) */
+  --course-1-a: #1E3A8A; --course-1-b: #1E40AF;
+  --course-2-a: #134E4A; --course-2-b: #115E59;
+  --course-3-a: #14532D; --course-3-b: #166534;
+  --course-4-a: #772A1C; --course-4-b: #922C1D;
+  --course-5-a: #0C4A6E; --course-5-b: #075985;
+  --course-6-a: #1E293B; --course-6-b: #475569;   /* repli neutre : assez clair pour se détacher du fond sombre */
+
+  /* ombres sombres : plus denses, 1px de liseré clair en haut */
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.40);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.45), 0 1px 2px rgb(0 0 0 / 0.30);
+  --shadow-md: 0 4px 10px -2px rgb(0 0 0 / 0.50), 0 2px 4px -2px rgb(0 0 0 / 0.35);
+  --shadow-lg: 0 12px 24px -6px rgb(0 0 0 / 0.55), 0 4px 8px -4px rgb(0 0 0 / 0.40);
+  --shadow-xl: 0 24px 48px -12px rgb(0 0 0 / 0.65);
+}
+
+
+
+/* ==========================================================================
+   4. GRAPHIQUES — thème clair
+      Séries alignées sur les familles : bleu (primaire) / corail (tertiaire) /
+      teal (secondaire) / ocre (accent) / bleu ciel (info) / ardoise, puis vert
+      et olive pour 7-8 séries. Variation de teinte ET de luminosité
+      (inspiré Okabe-Ito) ; le bleu (1) et le ciel (5) ne sont jamais voisins.
+      Ne jamais compter sur la couleur seule : légende, étiquettes directes ou
+      motifs. Ratios sur #FFFFFF (≥ 3:1 exigé pour les marques) : 5.17 4.51
+      5.47 4.92 4.10 7.58 5.02 4.99.
+   ========================================================================== */
+:root {
+  --chart-1: #2563EB;  /* bleu     (--primary) */
+  --chart-2: #D4442A;  /* corail   (--coral-600) */
+  --chart-3: #0F766E;  /* teal     (--teal-700) */
+  --chart-4: #A16207;  /* ocre */
+  --chart-5: #0284C7;  /* ciel     (--sky-600) */
+  --chart-6: #475569;  /* ardoise */
+  --chart-7: #15803D;  /* vert */
+  --chart-8: #4D7C0F;  /* olive */
+  --chart-grid: #E2E8F0;
+  --chart-axis: #5B6B80;
+}
+
+
+/* ==========================================================================
+   5. VISUELS DE FORMATIONS — paires de dégradé SVG (a = départ, b = arrivée)
+      Usage : <linearGradient><stop stop-color="var(--course-N-a)"/>
+              <stop offset="1" stop-color="var(--course-N-b)"/></linearGradient>
+      N = thème de la catégorie (client/data.js) : 1 dev (bleu), 2 data
+      (teal), 3 langues (vert), 4 gestion (corail), 5 design (ciel),
+      6 réseaux (ardoise). Texte/icônes blancs (#FFF) sur toute la surface :
+      ≥ 5.02:1 sur chaque extrémité. Pas de violet. Les extrémités sont
+      proches (dégradé subtil, quasi aplat). Utilisé aussi pour les blocs du
+      planning (texte blanc) : même exigence AA.
+   ========================================================================== */
+:root {
+  --course-1-a: #1E40AF;  --course-1-b: #2563EB;   /* bleu    : blanc 8.72 / 5.17 */
+  --course-2-a: #115E59;  --course-2-b: #0F766E;   /* teal    : 7.58 / 5.47 */
+  --course-3-a: #166534;  --course-3-b: #15803D;   /* vert    : 7.13 / 5.02 */
+  --course-4-a: #922C1D;  --course-4-b: #B53520;   /* corail  : 8.08 / 6.01 */
+  --course-5-a: #075985;  --course-5-b: #0369A1;   /* ciel    : 7.56 / 5.93 */
+  --course-6-a: #1E293B;  --course-6-b: #475569;   /* ardoise : 14.63 / 7.58 */
+  --course-ink: #FFFFFF;                           /* texte/icône sur visuel */
+}
+
+
+/* ==========================================================================
+   6. TYPOGRAPHIE
+   ========================================================================== */
+:root {
+  --font-display: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body:    "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --measure: 68ch;   /* largeur de ligne maximale pour la lecture */
+
+  /* Échelle : taille / interligne / graisse / interlettrage */
+  --text-display-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.25rem);  /* 36 → 52px */
+  --text-display-lh: 1.1;   --text-display-weight: 800; --text-display-ls: -0.022em;
+
+  --text-h1-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);       /* 28 → 36px */
+  --text-h1-lh: 1.2;        --text-h1-weight: 700;      --text-h1-ls: -0.015em;
+
+  --text-h2-size: 1.5rem;   /* 24px */
+  --text-h2-lh: 1.3;        --text-h2-weight: 700;      --text-h2-ls: -0.01em;
+
+  --text-h3-size: 1.25rem;  /* 20px */
+  --text-h3-lh: 1.4;        --text-h3-weight: 600;      --text-h3-ls: -0.01em;
+
+  --text-h4-size: 1.0625rem;/* 17px */
+  --text-h4-lh: 1.45;       --text-h4-weight: 600;      --text-h4-ls: -0.005em;
+
+  --text-body-lg-size: 1.125rem;  /* 18px — chapô */
+  --text-body-lg-lh: 1.65;  --text-body-lg-weight: 400; --text-body-lg-ls: 0;
+
+  --text-body-size: 1rem;   /* 16px */
+  --text-body-lh: 1.6;      --text-body-weight: 400;    --text-body-ls: 0;
+
+  --text-small-size: 0.875rem;    /* 14px — tableaux, formulaires denses */
+  --text-small-lh: 1.5;     --text-small-weight: 400;   --text-small-ls: 0;
+
+  --text-caption-size: 0.75rem;   /* 12px — méta, étiquettes de badge */
+  --text-caption-lh: 1.4;   --text-caption-weight: 500; --text-caption-ls: 0.02em;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+}
+
+
+
+
+/* ==========================================================================
+   7. ESPACEMENT, RAYONS, OMBRES, Z-INDEX
+   ========================================================================== */
+:root {
+  /* Espacement — échelle 4px */
+  --space-0: 0;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Mise en page */
+  --container-max: 1200px;
+  --sidebar-width: 256px;
+  --sidebar-width-collapsed: 72px;
+  --header-height: 64px;
+  --control-height-sm: 32px;
+  --control-height-md: 40px;
+  --control-height-lg: 48px;   /* cibles tactiles ≥ 44px en lg */
+
+  /* Rayons (cohérents : contrôles < cartes < modales) */
+  --radius-xs: 4px;     /* checkbox, tags compacts */
+  --radius-sm: 6px;     /* badges, petits boutons */
+  --radius-md: 8px;     /* boutons, champs */
+  --radius-lg: 12px;    /* cartes (= 0.75rem shadcn --radius) */
+  --radius-xl: 16px;    /* modales, panneaux hero */
+  --radius-full: 9999px;/* pills, avatars */
+
+  /* Ombres — très douces (clair). Redéfinies en section 3 pour le sombre. */
+  --shadow-xs: 0 1px 2px rgb(var(--shadow-color) / 0.05);
+  --shadow-sm: 0 1px 3px rgb(var(--shadow-color) / 0.07), 0 1px 2px rgb(var(--shadow-color) / 0.04);
+  --shadow-md: 0 4px 8px -2px rgb(var(--shadow-color) / 0.07), 0 2px 4px -2px rgb(var(--shadow-color) / 0.04);
+  --shadow-lg: 0 12px 20px -6px rgb(var(--shadow-color) / 0.09), 0 4px 8px -4px rgb(var(--shadow-color) / 0.05);
+  --shadow-xl: 0 24px 40px -12px rgb(var(--shadow-color) / 0.14);
+
+  /* Z-index */
+  --z-base: 0;
+  --z-raised: 10;     /* cartes survolées, en-têtes de tableau collants */
+  --z-sticky: 100;
+  --z-sidebar: 200;
+  --z-dropdown: 300;
+  --z-overlay: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+  --z-tooltip: 700;
+  --z-skip-link: 1000;
+}
+
+
+/* ==========================================================================
+   8. MOUVEMENT
+   ========================================================================== */
+:root {
+  --dur-fast: 150ms;   /* hover, focus, couleurs */
+  --dur-base: 200ms;   /* ouverture menu, onglets */
+  --dur-slow: 250ms;   /* drawer, modale, apparition de page */
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);      /* déplacements/changements d'état */
+  --ease-out:      cubic-bezier(0, 0, 0.2, 1);      /* entrée */
+  --ease-in:       cubic-bezier(0.4, 0, 1, 1);      /* sortie */
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1.15); /* léger dépassement, à employer avec parcimonie */
+
+  --transition-colors: color var(--dur-fast) var(--ease-standard),
+                       background-color var(--dur-fast) var(--ease-standard),
+                       border-color var(--dur-fast) var(--ease-standard),
+                       box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

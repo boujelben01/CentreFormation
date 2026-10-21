@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!-- Nouvelle notification (lot 7, étape 3c) d'après la maquette admin/notifications.html (#/nouveau).
+     Inchangés : POST /admin/notifications/send, champs destinationType, destinataireId, groupeId, sujet, message ;
+     attributs de modèle etudiants, formateurs, groupes. Les zones dépendantes du type sont gérées par admin-form.js
+     (data-show-if) : une zone masquée est désactivée, donc non envoyée (les deux listes se nomment destinataireId). -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Nouvelle notification',
+                   description='Composition et envoi d’une notification par e-mail.',
+                   crumbParent='Notifications', crumbParentHref=@{/admin/notifications}, crumbCurrent='Nouvelle notification',
+                   content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Nouvelle notification</h1>
+      <p>Les champs marqués d’un astérisque <span aria-hidden="true">*</span><span class="sr-only">(étoile)</span> sont obligatoires.</p>
+    </div>
+  </div>
+
+  <form th:action="@{/admin/notifications/send}" method="post" class="form-layout" autocomplete="off" data-form data-form-guard>
+    <div class="inline-alert is-warning" data-form-dirty role="status" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><span>Vous avez des modifications non enregistrées.</span></div>
+    <div class="inline-alert is-danger" data-form-summary role="alert" tabindex="-1" hidden></div>
+
+    <fieldset class="section">
+      <legend>Destinataire</legend>
+      <p class="section-desc">Choisissez à qui envoyer la notification.</p>
+      <noscript><p class="hint">Sans JavaScript, tous les champs sont affichés : ne remplissez que celui qui correspond au type choisi.</p></noscript>
+      <div class="grid-2">
+        <div class="field full">
+          <label for="f-type">Type de destinataire <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-type" name="destinationType" required aria-describedby="f-type-err">
+            <option value="">Sélectionner un type de destinataire</option>
+            <option value="etudiant">Un étudiant spécifique</option>
+            <option value="formateur">Un formateur spécifique</option>
+            <option value="groupe">Un groupe d’étudiants</option>
+            <option value="all_etudiants">Tous les étudiants</option>
+            <option value="all_formateurs">Tous les formateurs</option>
+          </select>
+          <p class="field-error" id="f-type-err" hidden></p>
+        </div>
+        <div class="field full" data-show-if="f-type:etudiant">
+          <label for="f-etudiant">Étudiant <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-etudiant" name="destinataireId" data-req aria-describedby="f-etudiant-err">
+            <option value="">Sélectionner un étudiant</option>
+            <option th:each="e : ${etudiants}" th:value="${e.id}" th:text="${(e.prenom ?: '') + ' ' + (e.nom ?: '') + ' (' + e.email + ')'}"></option>
+          </select>
+          <p class="field-error" id="f-etudiant-err" hidden></p>
+        </div>
+        <div class="field full" data-show-if="f-type:formateur">
+          <label for="f-formateur">Formateur <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-formateur" name="destinataireId" data-req aria-describedby="f-formateur-err">
+            <option value="">Sélectionner un formateur</option>
+            <option th:each="f : ${formateurs}" th:value="${f.id}" th:text="${(f.prenom ?: '') + ' ' + (f.nom ?: '') + ' (' + f.email + ')'}"></option>
+          </select>
+          <p class="field-error" id="f-formateur-err" hidden></p>
+        </div>
+        <div class="field full" data-show-if="f-type:groupe">
+          <label for="f-groupe">Groupe <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-groupe" name="groupeId" data-req aria-describedby="f-groupe-err">
+            <option value="">Sélectionner un groupe</option>
+            <option th:each="g : ${groupes}" th:value="${g.id}" th:text="${g.nom + (g.specialite != null ? ' (' + g.specialite.nom + ')' : '')}"></option>
+          </select>
+          <p class="field-error" id="f-groupe-err" hidden></p>
+        </div>
+        <div class="full" data-show-if="f-type:all_etudiants"><div class="inline-alert is-info"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-info"/></svg><div>La notification sera envoyée à <strong th:text="${#lists.size(etudiants)}">0</strong> étudiants.</div></div></div>
+        <div class="full" data-show-if="f-type:all_formateurs"><div class="inline-alert is-info"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-info"/></svg><div>La notification sera envoyée à <strong th:text="${#lists.size(formateurs)}">0</strong> formateurs.</div></div></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section">
+      <legend>Message</legend>
+      <p class="section-desc">Objet et contenu de la notification.</p>
+      <div class="grid-2">
+        <div class="field full">
+          <label for="f-sujet">Sujet <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="text" id="f-sujet" name="sujet" required placeholder="Ex : Information importante concernant vos cours" aria-describedby="f-sujet-err">
+          <p class="field-error" id="f-sujet-err" hidden></p>
+        </div>
+        <div class="field full">
+          <label for="f-message">Message <span class="req" aria-hidden="true">*</span></label>
+          <textarea class="textarea" id="f-message" name="message" rows="8" maxlength="2000" required aria-describedby="f-message-hint f-message-err"></textarea>
+          <p class="hint" id="f-message-hint">Le message sera mis en forme automatiquement dans un modèle d’e-mail. 2 000 caractères au maximum.</p>
+          <p class="field-error" id="f-message-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <span class="hint spacer">Les modifications ne sont enregistrées qu’après validation du formulaire.</span>
+      <a class="btn btn-secondary" th:href="@{/admin/notifications}">Annuler</a>
+      <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-send"/></svg><span>Envoyer la notification</span></button>
+    </div>
+  </form>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-form.js}" src="../../../static/public/js/admin-form.js" defer></script>
+</th:block>
+
+</body>
+</html>

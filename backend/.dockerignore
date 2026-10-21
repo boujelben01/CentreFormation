@@ -1,0 +1,12 @@
+target/
+.git
+.omc/
+.vscode/
+node_modules
+*.log
+application-local.properties
+.env*
+*.http
+test-all-endpoints.ps1
+README*
+RENDER.md

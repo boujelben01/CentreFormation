@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!-- Cours : modification (lot 7, étape 3a) d'après la maquette admin/cours.html.
+     Inchangés : th:action, th:object « cours », noms des champs, attributs de modèle du contrôleur.
+     Validation côté client, garde de sortie : admin-form.js (data-form*) ; le serveur reste l'autorité. -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Modifier un cours',
+                   description='Cours : code, titre, description, volume horaire et formateur.',
+                   crumbParent='Cours', crumbParentHref=@{/admin/pedagogie/cours}, crumbCurrent='Modifier',
+                   content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1" th:text="${#strings.trim('Modifier ' + (cours.code ?: '') + ' - ' + (cours.titre ?: ''))}">Modifier un cours</h1>
+      <p>Mettez à jour les informations puis enregistrez. Les champs marqués d’un astérisque <span aria-hidden="true">*</span><span class="sr-only">(étoile)</span> sont obligatoires.</p>
+    </div>
+  </div>
+
+  <form th:action="@{'/admin/pedagogie/cours/edit/' + ${cours.id}}" th:object="${cours}" method="post" class="form-layout" autocomplete="off"
+        data-form data-form-guard>
+    <div class="inline-alert is-warning" data-form-dirty role="status" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><span>Vous avez des modifications non enregistrées.</span></div>
+    <div class="inline-alert is-danger" data-form-summary role="alert" tabindex="-1" hidden></div>
+
+    <fieldset class="section">
+      <legend>Cours</legend>
+      <p class="section-desc">Identification et contenu du cours.</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-code">Code du cours <span class="req" aria-hidden="true">*</span></label>
+          <input class="input mono" type="text" id="f-code" th:field="*{code}" required spellcheck="false" aria-describedby="f-code-hint f-code-err">
+          <p class="hint" id="f-code-hint">Code unique, par exemple INF101.</p>
+          <p class="field-error" id="f-code-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-titre">Titre <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="text" id="f-titre" th:field="*{titre}" required aria-describedby="f-titre-err">
+          <p class="field-error" id="f-titre-err" hidden></p>
+        </div>
+        <div class="field full">
+          <label for="f-description">Description <span class="req" aria-hidden="true">*</span></label>
+          <textarea class="textarea" id="f-description" th:field="*{description}" required rows="4" aria-describedby="f-description-hint f-description-err"></textarea>
+          <p class="hint" id="f-description-hint">Contenu et objectifs du cours.</p>
+          <p class="field-error" id="f-description-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-volume">Volume horaire <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="number" id="f-volume" th:field="*{volumeHoraire}" required min="1" step="1" inputmode="numeric" aria-describedby="f-volume-hint f-volume-err">
+          <p class="hint" id="f-volume-hint">Nombre d’heures, en entier.</p>
+          <p class="field-error" id="f-volume-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section">
+      <legend>Affectation</legend>
+      <p class="section-desc">Formateur responsable.</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-formateur">Formateur</label>
+          <select class="select" id="f-formateur" th:field="*{formateur.id}" aria-describedby="f-formateur-hint">
+            <option value="">Sélectionner un formateur</option>
+            <option th:each="f : ${formateurs}" th:value="${f.id}" th:text="${(f.prenom ?: '') + ' ' + (f.nom ?: '') + (f.specialite != null ? ' (' + f.specialite.nom + ')' : '')}" th:selected="${cours.formateur != null and f.id == cours.formateur.id}"></option>
+          </select>
+          <p class="hint" id="f-formateur-hint">Facultatif. Un cours est lié à un seul formateur.</p>
+          <p class="field-error" id="f-formateur-err" hidden></p>
+        </div>
+        <div class="full"><div class="inline-alert is-info"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-info"/></svg><div>Le rattachement à un groupe se choisit uniquement à l’ajout d’un cours : ce formulaire n’a pas de champ Groupe.</div></div></div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <span class="hint spacer">Les modifications ne sont enregistrées qu’après validation du formulaire.</span>
+      <a class="btn btn-secondary" th:href="@{/admin/pedagogie/cours}">Annuler</a>
+      <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Mettre à jour</span></button>
+    </div>
+  </form>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-form.js}" src="../../../static/public/js/admin-form.js" defer></script>
+</th:block>
+
+</body>
+</html>

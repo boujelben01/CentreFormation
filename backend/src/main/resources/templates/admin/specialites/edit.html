@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!-- Spécialités : modification (lot 7, étape 3a) d'après la maquette admin/specialites.html.
+     Inchangés : th:action, th:object « specialite », noms des champs, attributs de modèle du contrôleur.
+     Validation côté client, garde de sortie : admin-form.js (data-form*) ; le serveur reste l'autorité. -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Modifier une spécialité',
+                   description='Spécialité proposée aux formateurs et aux groupes.',
+                   crumbParent='Spécialités', crumbParentHref=@{/admin/pedagogie/specialites}, crumbCurrent='Modifier',
+                   content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1" th:text="${#strings.trim('Modifier ' + (specialite.nom ?: ''))}">Modifier une spécialité</h1>
+      <p>Mettez à jour les informations puis enregistrez. Les champs marqués d’un astérisque <span aria-hidden="true">*</span><span class="sr-only">(étoile)</span> sont obligatoires.</p>
+    </div>
+  </div>
+
+  <form th:action="@{'/admin/pedagogie/specialites/edit/' + ${specialite.id}}" th:object="${specialite}" method="post" class="form-layout" autocomplete="off"
+        data-form data-form-guard>
+    <div class="inline-alert is-warning" data-form-dirty role="status" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><span>Vous avez des modifications non enregistrées.</span></div>
+    <div class="inline-alert is-danger" data-form-summary role="alert" tabindex="-1" hidden></div>
+
+    <fieldset class="section">
+      <legend>Spécialité</legend>
+      <p class="section-desc">Domaine d’enseignement proposé aux formateurs et aux groupes.</p>
+      <div class="grid-2">
+        <div class="field full">
+          <label for="f-nom">Nom de la spécialité <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="text" id="f-nom" th:field="*{nom}" required aria-describedby="f-nom-err">
+          <p class="field-error" id="f-nom-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <span class="hint spacer">Les modifications ne sont enregistrées qu’après validation du formulaire.</span>
+      <a class="btn btn-secondary" th:href="@{/admin/pedagogie/specialites}">Annuler</a>
+      <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Mettre à jour</span></button>
+    </div>
+  </form>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-form.js}" src="../../../static/public/js/admin-form.js" defer></script>
+</th:block>
+
+</body>
+</html>

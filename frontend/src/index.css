@@ -1,0 +1,215 @@
+@import './styles/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Variables shadcn/ui (triplets HSL, préfixe --ui-) dérivées des tokens EduPortal.
+     Préfixe nécessaire : les tokens (hex) utilisent déjà --primary, --accent, --border. */
+  :root {
+    --ui-background: 210 40% 98%;          /* --bg */
+    --ui-foreground: 222 47% 11%;          /* --text */
+
+    --ui-card: 0 0% 100%;                  /* --surface */
+    --ui-card-foreground: 222 47% 11%;
+    --ui-popover: 0 0% 100%;
+    --ui-popover-foreground: 222 47% 11%;
+
+    --ui-primary: 221 83% 53%;             /* --primary */
+    --ui-primary-foreground: 0 0% 100%;
+
+    --ui-secondary: 210 40% 96%;           /* --surface-2 (neutre shadcn) */
+    --ui-secondary-foreground: 222 47% 11%;
+
+    --ui-muted: 210 40% 96%;
+    --ui-muted-foreground: 215 19% 35%;    /* --text-muted */
+
+    --ui-accent: 38 92% 50%;               /* ambre (--accent) : usage rare */
+    --ui-accent-foreground: 222 47% 11%;   /* --accent-contrast */
+
+    --ui-destructive: 0 72% 51%;           /* --danger-solid */
+    --ui-destructive-foreground: 0 0% 100%;
+    --ui-success: 142 72% 29%;             /* --success-solid */
+    --ui-success-foreground: 0 0% 100%;
+    --ui-warning: 38 92% 50%;              /* --warning-solid */
+    --ui-warning-foreground: 222 47% 11%;
+    --ui-info: 201 96% 32%;                /* --info-solid */
+    --ui-info-foreground: 0 0% 100%;
+
+    --ui-border: 214 32% 91%;              /* --border (décoratif) */
+    --ui-input: 215 17% 56%;               /* --border-strong (champs) */
+    --ui-ring: 221 83% 53%;                /* --focus-ring */
+
+    --radius: 0.75rem;                  /* --radius-lg */
+
+    --ui-sidebar-background: 0 0% 100%;
+    --ui-sidebar-foreground: 215 19% 35%;
+    --ui-sidebar-primary: 221 83% 53%;
+    --ui-sidebar-primary-foreground: 0 0% 100%;
+    --ui-sidebar-accent: 214 100% 97%;
+    --ui-sidebar-accent-foreground: 224 76% 48%;
+    --ui-sidebar-border: 214 32% 91%;
+    --ui-sidebar-ring: 221 83% 53%;
+    --ui-sidebar-muted: 214 17% 43%;
+
+    --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+    --gradient-accent: linear-gradient(135deg, var(--accent) 0%, var(--warning-600) 100%);
+    --gradient-card: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+
+    --shadow-card: var(--shadow-sm);
+    --shadow-card-hover: var(--shadow-md);
+  }
+
+  :root[data-theme="dark"] {
+    --ui-background: 220 49% 8%;
+    --ui-foreground: 210 40% 96%;
+
+    --ui-card: 220 44% 12%;
+    --ui-card-foreground: 210 40% 96%;
+    --ui-popover: 220 44% 12%;
+    --ui-popover-foreground: 210 40% 96%;
+
+    --ui-primary: 221 83% 53%;
+    --ui-primary-foreground: 0 0% 100%;
+
+    --ui-secondary: 221 41% 16%;
+    --ui-secondary-foreground: 210 40% 96%;
+
+    --ui-muted: 221 41% 16%;
+    --ui-muted-foreground: 214 24% 72%;
+
+    --ui-accent: 43 96% 56%;
+    --ui-accent-foreground: 220 49% 8%;
+
+    --ui-destructive: 0 72% 51%;
+    --ui-destructive-foreground: 0 0% 100%;
+    --ui-success: 142 71% 45%;
+    --ui-success-foreground: 220 49% 8%;
+    --ui-warning: 43 96% 56%;
+    --ui-warning-foreground: 220 49% 8%;
+    --ui-info: 200 98% 39%;
+    --ui-info-foreground: 0 0% 100%;
+
+    --ui-border: 221 34% 21%;
+    --ui-input: 215 16% 47%;
+    --ui-ring: 213 94% 68%;
+
+    --ui-sidebar-background: 220 46% 10%;
+    --ui-sidebar-foreground: 214 24% 72%;
+    --ui-sidebar-primary: 213 94% 68%;
+    --ui-sidebar-primary-foreground: 220 49% 8%;
+    --ui-sidebar-accent: 220 59% 19%;
+    --ui-sidebar-accent-foreground: 212 96% 78%;
+    --ui-sidebar-border: 221 34% 21%;
+    --ui-sidebar-ring: 213 94% 68%;
+    --ui-sidebar-muted: 216 18% 59%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-card-hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Focus clavier global, sélection, défilement (tokens) */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-subtle);
+  background-clip: content-box;
+}
+
+/* Lien d'évitement : <a class="skip-link" href="#main">Aller au contenu</a> */
+.skip-link {
+  position: fixed;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: var(--z-skip-link);
+  padding: var(--space-2) var(--space-4);
+  background: var(--primary);
+  color: var(--primary-contrast);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}

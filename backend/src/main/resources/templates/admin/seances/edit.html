@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<!-- Séances : modification (lot 7, étape 3a) d'après la maquette admin/seances.html.
+     Inchangés : th:action, th:object « seance », noms des champs, attributs de modèle du contrôleur.
+     Validation côté client, garde de sortie : admin-form.js (data-form*) ; le serveur reste l'autorité. -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Modifier une séance',
+                   description='Séance : date, horaires, cours, formateur, salle et groupe.',
+                   crumbParent='Séances', crumbParentHref=@{/admin/pedagogie/seances}, crumbCurrent='Modifier',
+                   content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1" th:text="${#strings.trim('Modifier la séance' + (seance.date != null ? ' du ' + #temporals.format(seance.date, 'dd/MM/yyyy') : ''))}">Modifier une séance</h1>
+      <p>Mettez à jour les informations puis enregistrez. Les champs marqués d’un astérisque <span aria-hidden="true">*</span><span class="sr-only">(étoile)</span> sont obligatoires.</p>
+    </div>
+  </div>
+
+  <form th:action="@{'/admin/pedagogie/seances/edit/' + ${seance.id}}" th:object="${seance}" method="post" class="form-layout" autocomplete="off"
+        data-form data-form-guard>
+    <div class="inline-alert is-warning" data-form-dirty role="status" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><span>Vous avez des modifications non enregistrées.</span></div>
+    <div class="inline-alert is-danger" data-form-summary role="alert" tabindex="-1" hidden></div>
+
+    <fieldset class="section">
+      <legend>Créneau</legend>
+      <p class="section-desc">Date et horaires de la séance.</p>
+      <div class="grid-2">
+        <div class="field full">
+          <label for="f-date">Date <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="date" id="f-date" name="date" th:value="${seance.date != null ? #temporals.format(seance.date, 'yyyy-MM-dd') : ''}" required aria-describedby="f-date-err">
+          <p class="field-error" id="f-date-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-heureDebut">Heure de début <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="time" id="f-heureDebut" name="heureDebut" th:value="${seance.heureDebut != null ? #temporals.format(seance.heureDebut, 'HH:mm') : ''}" required aria-describedby="f-heureDebut-err">
+          <p class="field-error" id="f-heureDebut-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-heureFin">Heure de fin <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="time" id="f-heureFin" name="heureFin" th:value="${seance.heureFin != null ? #temporals.format(seance.heureFin, 'HH:mm') : ''}" required aria-describedby="f-heureFin-err">
+          <p class="field-error" id="f-heureFin-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section">
+      <legend>Cours et intervenants</legend>
+      <p class="section-desc">Tous les champs de cette section sont facultatifs.</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-cours">Cours</label>
+          <select class="select" id="f-cours" th:field="*{cours.id}" aria-describedby="f-cours-hint">
+            <option value="">Sélectionner un cours</option>
+            <option th:each="c : ${coursList}" th:value="${c.id}" th:text="${c.titre}" th:selected="seance.cours != null and c.id == seance.cours.id"></option>
+          </select>
+          <p class="field-error" id="f-cours-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-formateur">Formateur</label>
+          <select class="select" id="f-formateur" th:field="*{formateur.id}" aria-describedby="f-formateur-hint">
+            <option value="">Sélectionner un formateur</option>
+            <option th:each="f : ${formateurs}" th:value="${f.id}" th:text="${(f.prenom ?: '') + ' ' + (f.nom ?: '')}" th:selected="seance.formateur != null and f.id == seance.formateur.id"></option>
+          </select>
+          <p class="field-error" id="f-formateur-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-salle">Salle</label>
+          <select class="select" id="f-salle" th:field="*{salle.id}" aria-describedby="f-salle-hint">
+            <option value="">Sélectionner une salle</option>
+            <option th:each="s : ${salles}" th:value="${s.id}" th:text="${s.nom}" th:selected="seance.salle != null and s.id == seance.salle.id"></option>
+          </select>
+          <p class="field-error" id="f-salle-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-groupe">Groupe</label>
+          <select class="select" id="f-groupe" th:field="*{groupe.id}" aria-describedby="f-groupe-hint">
+            <option value="">Sélectionner un groupe</option>
+            <option th:each="g : ${groupes}" th:value="${g.id}" th:text="${g.nom}" th:selected="seance.groupe != null and g.id == seance.groupe.id"></option>
+          </select>
+          <p class="hint" id="f-groupe-hint">Facultatif. Tous les groupes sont proposés.</p>
+          <p class="field-error" id="f-groupe-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <span class="hint spacer">Les modifications ne sont enregistrées qu’après validation du formulaire.</span>
+      <a class="btn btn-secondary" th:href="@{/admin/pedagogie/seances}">Annuler</a>
+      <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Mettre à jour</span></button>
+    </div>
+  </form>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-form.js}" src="../../../static/public/js/admin-form.js" defer></script>
+</th:block>
+
+</body>
+</html>

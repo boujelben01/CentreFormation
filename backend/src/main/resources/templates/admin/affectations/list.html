@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<!-- Affectations (lot 7, étape 3c) d'après la maquette admin/affectations.html : page unique, deux formulaires POST
+     (/admin/affectations/groupe : formateurId, groupeId ; /admin/affectations/cours : formateurId, coursId) et le tableau des
+     groupes. Attributs de modèle inchangés : groupes, formateurs, cours. La maquette n'a aucune confirmation avant l'affectation :
+     aucune n'est ajoutée. Messages flash success / error : conteneur commun de la coque. -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Affectations',
+                   description='Affectation d’un formateur à un groupe ou à un cours, et affectations actuelles des groupes.',
+                   crumbCurrent='Affectations', content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page"
+         th:with="n=${groupes == null ? 0 : #lists.size(groupes)}">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Affectations</h1>
+      <p>Associez un formateur à un groupe ou à un cours. La nouvelle affectation remplace l’affectation actuelle.</p>
+    </div>
+  </div>
+
+  <div class="aff-grid">
+    <form th:action="@{/admin/affectations/groupe}" method="post" class="form-layout" autocomplete="off" data-form>
+      <div class="inline-alert is-danger" data-form-summary role="alert" tabindex="-1" hidden></div>
+      <fieldset class="section">
+      <legend>Affecter un formateur à un groupe</legend>
+      <p class="section-desc">Le formateur choisi devient le formateur du groupe.</p>
+      <div class="grid-2">
+        <div class="field full">
+          <label for="f-g-formateur">Formateur <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-g-formateur" name="formateurId" required aria-describedby="f-g-formateur-hint f-g-formateur-err">
+            <option value="">Sélectionner un formateur</option>
+            <option th:each="f : ${formateurs}" th:value="${f.id}" th:text="${(f.nom ?: '') + ' ' + (f.prenom ?: '')}"></option>
+          </select>
+          <p class="hint" id="f-g-formateur-hint">Affiché sous la forme « Nom Prénom ».</p>
+          <p class="field-error" id="f-g-formateur-err" hidden></p>
+        </div>
+        <div class="field full">
+          <label for="f-g-groupeId">Groupe <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-g-groupeId" name="groupeId" required aria-describedby="f-g-groupeId-hint f-g-groupeId-err">
+            <option value="">Sélectionner un groupe</option>
+            <option th:each="groupe : ${groupes}" th:value="${groupe.id}" th:text="${groupe.nom + (groupe.formateur != null ? ' (Actuel : ' + (groupe.formateur.nom ?: '') + ')' : '')}"></option>
+          </select>
+          <p class="hint" id="f-g-groupeId-hint">Le formateur actuel du groupe est indiqué entre parenthèses.</p>
+          <p class="field-error" id="f-g-groupeId-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+      <div class="form-actions">
+        <span class="hint spacer">La nouvelle affectation remplace l’affectation actuelle.</span>
+        <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Affecter au groupe</span></button>
+      </div>
+    </form>
+
+    <form th:action="@{/admin/affectations/cours}" method="post" class="form-layout" autocomplete="off" data-form>
+      <div class="inline-alert is-danger" data-form-summary role="alert" tabindex="-1" hidden></div>
+      <fieldset class="section">
+      <legend>Affecter un formateur à un cours</legend>
+      <p class="section-desc">Le formateur choisi devient le formateur référent du cours.</p>
+      <div class="grid-2">
+        <div class="field full">
+          <label for="f-c-formateur">Formateur <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-c-formateur" name="formateurId" required aria-describedby="f-c-formateur-hint f-c-formateur-err">
+            <option value="">Sélectionner un formateur</option>
+            <option th:each="f : ${formateurs}" th:value="${f.id}" th:text="${(f.nom ?: '') + ' ' + (f.prenom ?: '')}"></option>
+          </select>
+          <p class="hint" id="f-c-formateur-hint">Affiché sous la forme « Nom Prénom ».</p>
+          <p class="field-error" id="f-c-formateur-err" hidden></p>
+        </div>
+        <div class="field full">
+          <label for="f-c-coursId">Cours <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-c-coursId" name="coursId" required aria-describedby="f-c-coursId-hint f-c-coursId-err">
+            <option value="">Sélectionner un cours</option>
+            <option th:each="c : ${cours}" th:value="${c.id}" th:text="${c.code + ' - ' + c.titre + (c.formateur != null ? ' (Actuel : ' + (c.formateur.nom ?: '') + ')' : '')}"></option>
+          </select>
+          <p class="hint" id="f-c-coursId-hint">Affiché sous la forme « CODE - Titre », avec le formateur actuel.</p>
+          <p class="field-error" id="f-c-coursId-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+      <div class="form-actions">
+        <span class="hint spacer">La nouvelle affectation remplace l’affectation actuelle.</span>
+        <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Affecter au cours</span></button>
+      </div>
+    </form>
+  </div>
+
+  <section aria-labelledby="aff-tbl-title">
+    <h2 class="aff-title" id="aff-tbl-title">Affectations actuelles des groupes</h2>
+
+    <div class="card" th:if="${n == 0}">
+      <div class="state">
+        <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+        <h2>Aucun groupe pour le moment</h2>
+        <p>Créez un groupe pour pouvoir lui affecter un formateur.</p>
+        <a class="btn btn-secondary" th:href="@{/admin/pedagogie/groupes}">Gérer les groupes</a>
+      </div>
+    </div>
+
+    <div class="card" th:unless="${n == 0}" data-list data-list-id="affectations" data-list-sort="groupe" data-list-page-size="10">
+      <div class="toolbar" data-list-toolbar hidden>
+        <div class="search-field">
+          <label class="sr-only" for="affectations-search">Rechercher un groupe</label>
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+          <input class="input input-icon" type="search" id="affectations-search" data-list-search placeholder="Groupe ou formateur" autocomplete="off">
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" data-list-reset hidden><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>Réinitialiser les filtres</button>
+      </div>
+      <div data-list-filter="formateur" data-filter-label="Formateur" data-filter-empty="Non affecté" hidden></div>
+      <div class="result-line"><p data-list-count role="status" aria-live="polite" th:text="${n == 1 ? '1 résultat' : n + ' résultats'}">12 résultats</p></div>
+
+      <div class="table-wrap" data-list-wrap tabindex="0" role="region" aria-label="Affectations actuelles des groupes (défilement horizontal possible)">
+        <table class="dt" data-list-table>
+          <caption class="sr-only">Affectations actuelles des groupes, triable par colonne</caption>
+          <thead>
+            <tr>
+              <th scope="col" data-sort="text" data-sort-key="groupe">Groupe</th>
+              <th scope="col" data-sort="text" data-sort-key="formateur">Formateur affecté</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="groupe : ${groupes}"
+                th:with="formLib=${groupe.formateur != null ? #strings.trim((groupe.formateur.prenom ?: '') + ' ' + (groupe.formateur.nom ?: '')) : null}">
+              <td class="cell-wrap" th:text="${groupe.nom}">Groupe</td>
+              <td th:attr="data-value=${formLib ?: ''}">
+                <span th:if="${formLib != null}" class="badge badge-success"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-circle-check"/></svg><span th:text="${formLib}">Prénom Nom</span></span>
+                <span th:if="${formLib == null}" class="badge badge-neutral"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-ban"/></svg><span>Non affecté</span></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="state" data-list-empty hidden>
+        <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+        <h2>Aucun groupe ne correspond</h2>
+        <p>Essayez avec un autre terme ou retirez un filtre pour élargir la recherche.</p>
+        <button type="button" class="btn btn-secondary" data-list-reset><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg>Réinitialiser les filtres</button>
+      </div>
+      <nav class="pagination" data-list-pagination hidden aria-label="Pagination : affectations actuelles des groupes"></nav>
+    </div>
+  </section>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-list.js}" src="../../../static/public/js/admin-list.js" defer></script>
+  <script th:src="@{/public/js/admin-form.js}" src="../../../static/public/js/admin-form.js" defer></script>
+</th:block>
+
+</body>
+</html>

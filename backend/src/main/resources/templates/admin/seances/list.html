@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<!-- Séances : liste (lot 7, étape 3a) d'après la maquette admin/seances.html ; patron : GUIDE-ADMIN-MODULE.md.
+     Attribut de modèle inchangé : « seances ». Le serveur envoie TOUTES les lignes ; recherche, tri, filtres et
+     pagination : admin-list.js (data-list*). Suppression : formulaire POST (th:action, CSRF) + dialogue (data-confirm-delete). -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Séances',
+                   description='Liste des séances : recherche, tri, filtres par groupe, formateur et salle, ajout, modification et suppression.',
+                   crumbCurrent='Séances', content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page"
+         th:with="n=${seances == null ? 0 : #lists.size(seances)}">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Séances</h1>
+      <p id="list-sub" th:text="${n == 0 ? 'Aucune séance' : (n == 1 ? '1 séance' : n + ' séances')}">12 séances</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-primary" th:href="@{/admin/pedagogie/seances/add}"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg>Ajouter une séance</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : empty-state (liste vide côté serveur) -->
+  <div class="card" th:if="${n == 0}">
+    <div class="state">
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucune séance pour le moment</h2>
+      <p>Cette liste est vide. Ajoutez une première séance pour commencer.</p>
+      <a class="btn btn-secondary" th:href="@{/admin/pedagogie/seances/add}">Ajouter une séance</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : data-table -->
+  <div class="card" th:unless="${n == 0}" data-list data-list-id="seances" data-list-sort="date" data-list-page-size="10">
+    <div class="toolbar" data-list-toolbar hidden>
+      <div class="search-field">
+        <label class="sr-only" for="seances-search">Rechercher une séance</label>
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+        <input class="input input-icon" type="search" id="seances-search" data-list-search placeholder="Date, cours, formateur, salle ou groupe" autocomplete="off">
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" data-list-reset hidden><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>Réinitialiser les filtres</button>
+    </div>
+    <div data-list-filter="groupe" data-filter-label="Groupe" data-filter-empty="Sans groupe" hidden></div>
+    <div data-list-filter="formateur" data-filter-label="Formateur" data-filter-empty="Sans formateur" hidden></div>
+    <div data-list-filter="salle" data-filter-label="Salle" data-filter-empty="Sans salle" hidden></div>
+    <div class="result-line"><p data-list-count role="status" aria-live="polite" th:text="${n == 1 ? '1 résultat' : n + ' résultats'}">12 résultats</p></div>
+
+    <div class="table-wrap" data-list-wrap tabindex="0" role="region" aria-label="Liste des séances (défilement horizontal possible)">
+      <table class="dt" data-list-table>
+        <caption class="sr-only">Liste des séances, triable par colonne</caption>
+        <thead>
+          <tr>
+            <th scope="col" data-sort="text" data-sort-key="date">Date</th>
+            <th scope="col" data-sort="text" data-sort-key="horaire">Horaire</th>
+            <th scope="col" data-sort="text" data-sort-key="cours">Cours</th>
+            <th scope="col" data-sort="text" data-sort-key="formateur">Formateur</th>
+            <th scope="col" data-sort="text" data-sort-key="salle">Salle</th>
+            <th scope="col" data-sort="text" data-sort-key="groupe">Groupe</th>
+            <th scope="col" class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="s : ${seances}"
+              th:with="dateFr=${s.date != null ? #temporals.format(s.date, 'dd/MM/yyyy') : '—'},
+                       hDeb=${s.heureDebut != null ? #temporals.format(s.heureDebut, 'HH:mm') : ''},
+                       hFin=${s.heureFin != null ? #temporals.format(s.heureFin, 'HH:mm') : ''},
+                       horaire=${(hDeb != '' ? hDeb : '—') + ' - ' + (hFin != '' ? hFin : '—')},
+                       coursT=${s.cours != null ? s.cours.titre : null},
+                       formLib=${s.formateur != null ? #strings.trim((s.formateur.prenom ?: '') + ' ' + (s.formateur.nom ?: '')) : null},
+                       salleN=${s.salle != null ? s.salle.nom : null},
+                       grpN=${s.groupe != null ? s.groupe.nom : null},
+                       libelle=${'Séance du ' + dateFr + ', ' + horaire + (grpN != null ? ' (' + grpN + ')' : '')}">
+            <td class="nowrap" th:attr="data-value=${s.date != null ? s.date : ''}" th:text="${dateFr}">20/10/2026</td>
+            <td class="nowrap" th:attr="data-value=${hDeb + '-' + hFin}" th:text="${horaire}">09:00 - 11:00</td>
+            <td class="cell-wrap" th:attr="data-value=${coursT ?: ''}">
+              <span th:if="${coursT != null}" th:text="${coursT}">valeur</span>
+              <span th:if="${coursT == null}" class="subtle">—</span>
+            </td>
+            <td th:attr="data-value=${formLib ?: ''}">
+              <span th:if="${formLib != null}" th:text="${formLib}">valeur</span>
+              <span th:if="${formLib == null}" class="subtle">—</span>
+            </td>
+            <td th:attr="data-value=${salleN ?: ''}">
+              <span th:if="${salleN != null}" th:text="${salleN}">valeur</span>
+              <span th:if="${salleN == null}" class="subtle">—</span>
+            </td>
+            <td class="nowrap" th:attr="data-value=${grpN ?: ''}">
+              <span th:if="${grpN != null}" th:text="${grpN}">valeur</span>
+              <span th:if="${grpN == null}" class="subtle">—</span>
+            </td>
+            <td class="col-actions">
+              <span class="row-actions">
+                <a class="icon-btn icon-btn-sm is-primary" th:href="@{'/admin/pedagogie/seances/edit/' + ${s.id}}" title="Modifier" th:attr="aria-label=|Modifier ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-pencil"/></svg></a>
+                <form class="inline-form" th:action="@{'/admin/pedagogie/seances/delete/' + ${s.id}}" method="post" data-confirm-delete th:attr="data-confirm-label=${libelle}">
+                  <ul hidden data-confirm-items>
+                    <li th:text="|Cours : ${coursT ?: 'non renseigné'} · groupe : ${grpN ?: 'non renseigné'}|">Cours</li>
+                    <li th:text="|Formateur : ${formLib ?: 'non renseigné'} · salle : ${salleN ?: 'non renseignée'}|">Formateur</li>
+                  </ul>
+                  <button type="submit" class="icon-btn icon-btn-sm is-danger" title="Supprimer" th:attr="aria-label=|Supprimer ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-trash"/></svg></button>
+                </form>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COMPOSANT : état « aucun résultat » (affiché par admin-list.js) -->
+    <div class="state" data-list-empty hidden>
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucune séance ne correspond</h2>
+      <p>Essayez avec un autre terme ou retirez un filtre pour élargir la recherche.</p>
+      <button type="button" class="btn btn-secondary" data-list-reset><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg>Réinitialiser les filtres</button>
+    </div>
+
+    <!-- COMPOSANT : pagination (construite par admin-list.js) -->
+    <nav class="pagination" data-list-pagination hidden aria-label="Pagination : liste des séances"></nav>
+  </div>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-list.js}" src="../../../static/public/js/admin-list.js" defer></script>
+</th:block>
+
+</body>
+</html>

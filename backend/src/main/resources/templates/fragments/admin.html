@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<!--
+  Fragments communs de l'administration (lot 7) : balisage et classes des maquettes admin
+  (admin/shared.js : EP.shell, EP.brandHTML, sprite).
+    - page avec coque : fragments/admin-layout :: layout(...)
+    - page sans coque (connexion) : head, sprite, brand, theme-toggle
+  Paramètres nommés : title (obligatoire), description, crumbParent, crumbParentHref,
+  crumbCurrent (fil d'Ariane), brandHref.
+  Aucun attribut de modèle n'est ajouté : seuls « success » / « error » (attributs flash
+  existants) sont lus par le conteneur de messages.
+-->
+<head th:fragment="head">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <script>
+  /* Thème : CLAIR par défaut (même si l'OS est en sombre) ; choix mémorisé « ep-theme », appliqué avant le premier rendu (pas de flash). */
+  (function(){var t="light";try{var s=localStorage.getItem("ep-theme");if(s==="dark"||s==="light")t=s;}catch(e){}
+  var d=document.documentElement;d.setAttribute("data-theme",t);d.style.colorScheme=t;var m=document.querySelector('meta[name="color-scheme"]');if(m)m.setAttribute("content",t);})();
+  </script>
+  <title th:text="${title} + ' — EduPortal Administration'">EduPortal Administration</title>
+  <meta name="description" th:if="${description != null}" th:content="${description}">
+  <!-- Polices : même chargement que le frontend React (frontend/index.html). -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
+  <link rel="stylesheet" th:href="@{/public/css/tokens.css}" href="../../static/public/css/tokens.css">
+  <link rel="stylesheet" th:href="@{/public/css/admin.css}" href="../../static/public/css/admin.css">
+  <script th:src="@{/public/js/admin.js}" src="../../static/public/js/admin.js" defer></script>
+</head>
+<body>
+
+<!-- Sprite d'icônes (Lucide, identique à la maquette) + logo -->
+<svg th:fragment="sprite" id="ep-sprite" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+      <symbol id="logo-mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="var(--primary)"/><path d="M9 24V15a7 7 0 0 1 14 0v9" fill="none" stroke="var(--primary-contrast)" stroke-width="3" stroke-linecap="round"/><circle cx="16" cy="16" r="2.5" fill="var(--accent)"/></symbol>
+      <symbol id="i-layout-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+      <symbol id="i-user-plus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></symbol>
+      <symbol id="i-user-cog" viewBox="0 0 24 24"><circle cx="18" cy="15" r="3"/><circle cx="9" cy="7" r="4"/><path d="M10 15H6a4 4 0 0 0-4 4v2"/><path d="m21.7 16.4-.9-.3"/><path d="m15.2 13.9-.9-.3"/><path d="m16.6 18.7.3-.9"/><path d="m19.1 12.2.3-.9"/><path d="m19.6 18.7-.4-1"/><path d="m16.8 12.3-.4-1"/><path d="m14.3 16.6 1-.4"/><path d="m20.7 13.8 1-.4"/></symbol>
+      <symbol id="i-book-open" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+      <symbol id="i-calendar-days" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+      <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+      <symbol id="i-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+      <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+      <symbol id="i-chevron-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+      <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+      <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+      <symbol id="i-panel-left" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+      <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+      <symbol id="i-alert-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></symbol>
+      <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></symbol>
+      <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+      <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+      <symbol id="i-arrow-up-down" viewBox="0 0 24 24"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></symbol>
+      <symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+      <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></symbol>
+      <symbol id="i-graduation-cap" viewBox="0 0 24 24"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.53 13.53 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><path d="M2 2l20 20"/></symbol>
+      <symbol id="i-loader" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+      <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></symbol>
+      <symbol id="i-briefcase" viewBox="0 0 24 24"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></symbol>
+      <symbol id="i-door-open" viewBox="0 0 24 24"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4.562v16.157a1 1 0 0 1-1.242.97L5 20V5.562a2 2 0 0 1 1.515-1.94l4-1A2 2 0 0 1 13 4.561Z"/></symbol>
+      <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+      <symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol>
+      <symbol id="i-award" viewBox="0 0 24 24"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></symbol>
+      <symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+      <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<!-- Illustration des états vides (identique à la maquette : EP.stateHTML) -->
+<svg th:fragment="illu-empty" class="illu" viewBox="0 0 160 120" aria-hidden="true" focusable="false"><ellipse cx="80" cy="108" rx="52" ry="6" fill="var(--surface-sunken)"/><rect x="34" y="14" width="76" height="92" rx="9" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="2"/><rect x="46" y="30" width="34" height="7" rx="3.5" fill="var(--primary)"/><rect x="46" y="46" width="52" height="6" rx="3" fill="var(--border-strong)"/><rect x="46" y="60" width="44" height="6" rx="3" fill="var(--border-strong)"/><circle cx="106" cy="76" r="22" fill="var(--primary-soft)" stroke="var(--primary)" stroke-width="4"/><path d="M122 92l18 18" stroke="var(--primary)" stroke-width="6" stroke-linecap="round"/><circle cx="136" cy="26" r="5" fill="var(--accent)"/></svg>
+
+<!-- Marque (logo + « EduPortal ») ; brandHref facultatif (défaut : tableau de bord) -->
+<a th:fragment="brand" class="brand" th:href="${brandHref != null} ? ${brandHref} : @{/admin/dashboard}" href="#" aria-label="EduPortal">
+  <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#logo-mark"/></svg>
+  <span class="wordmark" aria-hidden="true"><span class="wm-edu">Edu</span><span class="wm-portal">Portal</span></span>
+</a>
+
+<!-- Bascule clair / sombre (libellé et icône synchronisés par admin.js) -->
+<button th:fragment="theme-toggle" type="button" class="icon-btn" id="theme-btn" data-theme-toggle aria-label="Passer au thème sombre">
+  <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-moon"/></svg>
+</button>
+
+<!-- Sidebar : modules réellement présents ; lien actif d'après la page affichée.
+     Thymeleaf 3.1 interdit l'accès à la requête (#request, springRequestContext) : on lit le gabarit
+     traité (#execInfo.processedTemplateName), qui correspond 1:1 à l'URL dans les contrôleurs
+     (ex. /admin/pedagogie/cours/** -> admin/cours/*). Déconnexion en POST (jeton CSRF ajouté par th:action). -->
+<aside th:fragment="sidebar" class="sidebar" id="sidebar" aria-label="Menu latéral"
+       th:with="tpl=${#execInfo.processedTemplateName}">
+  <div class="sidebar-head">
+    <a th:replace="~{fragments/admin :: brand}"></a>
+    <button type="button" class="icon-btn sidebar-close" id="drawer-close" aria-label="Fermer le menu"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-x"/></svg></button>
+  </div>
+  <nav class="nav-scroll" aria-label="Navigation principale">
+    <div class="nav-group"><p class="nav-label" id="nav-l-0">Pilotage</p>
+      <ul class="nav-list" aria-labelledby="nav-l-0">
+        <li><a class="nav-link" th:href="@{/admin/dashboard}" title="Tableau de bord" th:aria-current="${tpl == 'admin/dashboard'} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-layout-dashboard"/></svg><span class="nav-text">Tableau de bord</span></a></li>
+      </ul>
+    </div>
+    <div class="nav-group"><p class="nav-label" id="nav-l-1">Pédagogie</p>
+      <ul class="nav-list" aria-labelledby="nav-l-1">
+        <li><a class="nav-link" th:href="@{/admin/pedagogie/cours}" title="Cours" th:aria-current="${#strings.startsWith(tpl, 'admin/cours/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-book-open"/></svg><span class="nav-text">Cours</span></a></li>
+        <li><a class="nav-link" th:href="@{/admin/pedagogie/groupes}" title="Groupes" th:aria-current="${#strings.startsWith(tpl, 'admin/groupes/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-users"/></svg><span class="nav-text">Groupes</span></a></li>
+        <li><a class="nav-link" th:href="@{/admin/pedagogie/specialites}" title="Spécialités" th:aria-current="${#strings.startsWith(tpl, 'admin/specialites/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-layers"/></svg><span class="nav-text">Spécialités</span></a></li>
+        <li><a class="nav-link" th:href="@{/admin/pedagogie/sessions}" title="Sessions pédagogiques" th:aria-current="${#strings.startsWith(tpl, 'admin/sessions/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-calendar-days"/></svg><span class="nav-text">Sessions pédagogiques</span></a></li>
+      </ul>
+    </div>
+    <div class="nav-group"><p class="nav-label" id="nav-l-2">Personnes</p>
+      <ul class="nav-list" aria-labelledby="nav-l-2">
+        <li><a class="nav-link" th:href="@{/admin/etudiants}" title="Étudiants" th:aria-current="${#strings.startsWith(tpl, 'admin/etudiants/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-graduation-cap"/></svg><span class="nav-text">Étudiants</span></a></li>
+        <li><a class="nav-link" th:href="@{/admin/formateurs}" title="Formateurs" th:aria-current="${#strings.startsWith(tpl, 'admin/formateurs/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-briefcase"/></svg><span class="nav-text">Formateurs</span></a></li>
+        <li><a class="nav-link" th:href="@{/admin/utilisateurs}" title="Utilisateurs" th:aria-current="${#strings.startsWith(tpl, 'admin/utilisateurs/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-user-cog"/></svg><span class="nav-text">Utilisateurs</span></a></li>
+        <li><a class="nav-link" th:href="@{/admin/roles}" title="Rôles" th:aria-current="${#strings.startsWith(tpl, 'admin/roles/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-shield"/></svg><span class="nav-text">Rôles</span></a></li>
+      </ul>
+    </div>
+    <div class="nav-group"><p class="nav-label" id="nav-l-3">Planification</p>
+      <ul class="nav-list" aria-labelledby="nav-l-3">
+        <li><a class="nav-link" th:href="@{/admin/pedagogie/seances}" title="Séances" th:aria-current="${#strings.startsWith(tpl, 'admin/seances/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-clock"/></svg><span class="nav-text">Séances</span></a></li>
+        <li><a class="nav-link" th:href="@{/admin/pedagogie/salles}" title="Salles" th:aria-current="${#strings.startsWith(tpl, 'admin/salles/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-door-open"/></svg><span class="nav-text">Salles</span></a></li>
+        <li><a class="nav-link" th:href="@{/admin/affectations}" title="Affectations" th:aria-current="${#strings.startsWith(tpl, 'admin/affectations/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-link"/></svg><span class="nav-text">Affectations</span></a></li>
+        <li><a class="nav-link" th:href="@{/admin/inscriptions}" title="Inscriptions" th:aria-current="${#strings.startsWith(tpl, 'admin/inscriptions/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-clipboard-list"/></svg><span class="nav-text">Inscriptions</span></a></li>
+      </ul>
+    </div>
+    <div class="nav-group"><p class="nav-label" id="nav-l-4">Suivi</p>
+      <ul class="nav-list" aria-labelledby="nav-l-4">
+        <li><a class="nav-link" th:href="@{/admin/notes}" title="Notes" th:aria-current="${#strings.startsWith(tpl, 'admin/notes/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-award"/></svg><span class="nav-text">Notes</span></a></li>
+        <li><a class="nav-link" th:href="@{/admin/notifications}" title="Notifications" th:aria-current="${#strings.startsWith(tpl, 'admin/notifications/')} ? 'page'"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-bell"/></svg><span class="nav-text">Notifications</span></a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="sidebar-foot">
+    <button type="button" class="nav-link collapse-btn" id="collapse-btn" data-collapse aria-pressed="false" title="Réduire le menu"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-panel-left"/></svg><span class="nav-text" id="collapse-label">Réduire le menu</span></button>
+    <form th:action="@{/logout}" method="post"><button type="submit" class="nav-link" title="Déconnexion"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-log-out"/></svg><span class="nav-text">Déconnexion</span></button></form>
+  </div>
+</aside>
+
+<!-- Barre supérieure : menu mobile, thème, utilisateur connecté, déconnexion (POST + CSRF) -->
+<header th:fragment="topbar" class="topbar"
+        th:with="who=${#authentication != null ? #authentication.name : ''}">
+  <button type="button" class="icon-btn menu-toggle" id="menu-toggle" aria-label="Ouvrir le menu" aria-controls="sidebar" aria-expanded="false"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-menu"/></svg></button>
+  <div class="topbar-actions">
+    <button th:replace="~{fragments/admin :: theme-toggle}"></button>
+  </div>
+</header>
+
+<!-- Fil d'Ariane : sans crumbCurrent = tableau de bord (« Administration › titre ») ;
+     sinon « Tableau de bord › [crumbParent] › crumbCurrent » -->
+<nav th:fragment="breadcrumb" class="breadcrumb" aria-label="Fil d’Ariane">
+  <ol th:if="${crumbCurrent == null}">
+    <li><span>Administration</span></li>
+    <li><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-chevron-right"/></svg><span aria-current="page" th:text="${title}">Tableau de bord</span></li>
+  </ol>
+  <ol th:unless="${crumbCurrent == null}">
+    <li><a th:href="@{/admin/dashboard}">Tableau de bord</a></li>
+    <li th:if="${crumbParent != null}"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-chevron-right"/></svg><a th:href="${crumbParentHref}" th:text="${crumbParent}">Module</a></li>
+    <li><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-chevron-right"/></svg><span aria-current="page" th:text="${crumbCurrent}">Page</span></li>
+  </ol>
+</nav>
+
+<!-- Messages flash du serveur (attributs existants « success » / « error ») -->
+<div th:fragment="flash" class="flash-stack" th:if="${success != null or error != null}">
+  <div th:if="${success != null}" class="inline-alert is-success" role="status"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-circle-check"/></svg><span th:text="${success}">Message</span></div>
+  <div th:if="${error != null}" class="inline-alert is-danger" role="alert"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert-circle"/></svg><span th:text="${error}">Erreur</span></div>
+</div>
+
+<!-- Pied de page -->
+<footer th:fragment="footer" class="site-foot"><div class="foot-in"><p>© 2026 EduPortal · Centre de formation</p></div></footer>
+
+<!-- Retour en haut (affiché par admin.js après 400 px de défilement) -->
+<button th:fragment="to-top" type="button" class="to-top" id="to-top" hidden aria-label="Retour en haut de la page"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-arrow-up"/></svg></button>
+
+</body>
+</html>

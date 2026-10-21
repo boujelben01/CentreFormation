@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<!-- Page d'erreur générique (lot 7, étape 3c) : 400, 403 et toute autre erreur sans gabarit dédié (404.html, 500.html).
+     Page autonome, sans information technique. -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin :: head(title='Erreur', description='Une erreur est survenue.')}"></head>
+<body>
+  <svg th:replace="~{fragments/admin :: sprite}"></svg>
+  <a class="skip-link" href="#main">Aller au contenu principal</a>
+  <div class="login">
+    <header class="login-top">
+      <a th:replace="~{fragments/admin :: brand}"></a>
+      <button th:replace="~{fragments/admin :: theme-toggle}"></button>
+    </header>
+    <main id="main" class="login-main" tabindex="-1">
+      <section class="notfound" aria-labelledby="h-erreur" th:with="code=${status != null ? status : 500}">
+        <svg viewBox="0 0 320 200" aria-hidden="true" focusable="false"><ellipse cx="160" cy="180" rx="110" ry="9" fill="var(--surface-sunken)"/><rect x="70" y="28" width="150" height="128" rx="14" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="2"/><rect x="88" y="50" width="70" height="9" rx="4.5" fill="var(--primary)"/><rect x="88" y="72" width="112" height="7" rx="3.5" fill="var(--border-strong)"/><rect x="88" y="90" width="96" height="7" rx="3.5" fill="var(--border-strong)"/><rect x="88" y="108" width="60" height="7" rx="3.5" fill="var(--border-strong)"/><circle cx="214" cy="128" r="38" fill="var(--primary-soft)" stroke="var(--primary)" stroke-width="5"/><path d="M241 155l30 30" stroke="var(--primary)" stroke-width="9" stroke-linecap="round"/><path d="M202 116l24 24M226 116l-24 24" stroke="var(--primary)" stroke-width="5" stroke-linecap="round"/><circle cx="250" cy="40" r="7" fill="var(--accent)"/><circle cx="58" cy="120" r="5" fill="var(--border-strong)"/></svg>
+        <p class="code-404" aria-hidden="true" th:text="${code}">500</p>
+        <h1 id="h-erreur" tabindex="-1" th:text="${code == 403 ? 'Accès refusé' : (code == 400 ? 'Requête invalide' : 'Une erreur est survenue')}">Une erreur est survenue</h1>
+        <p th:text="${code == 403 ? 'Vous n’avez pas les droits nécessaires pour consulter cette page. Connectez-vous avec un compte autorisé.' : (code == 400 ? 'La demande envoyée n’a pas pu être comprise. Vérifiez les informations saisies puis réessayez.' : 'Le serveur n’a pas pu traiter votre demande. Réessayez dans un instant ou revenez au tableau de bord.')}">Message</p>
+        <div class="page-actions">
+          <a class="btn btn-primary" th:href="@{/admin/dashboard}"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-layout-dashboard"/></svg>Retour au tableau de bord</a>
+          <a class="btn btn-secondary" th:href="@{/login}"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-log-out"/></svg>Page de connexion</a>
+        </div>
+      </section>
+    </main>
+    <footer class="site-foot"><div class="foot-in"><p>© 2026 EduPortal · Centre de formation</p></div></footer>
+  </div>
+</body>
+</html>

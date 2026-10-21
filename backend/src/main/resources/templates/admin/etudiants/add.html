@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<!-- Ajout d'un étudiant (lot 7, étape 2) : maquette admin/etudiants.html (#/nouveau).
+     Inchangés : th:action, th:object « etudiant », noms des champs (username, password, matricule, nom, prenom, email,
+     dateInscription, groupe.id), attribut « groupes » (AdminEtudiantController). Validation côté client, garde de sortie
+     et jauge de mot de passe ajoutées par admin-form.js (data-form*) ; le serveur reste l'autorité. -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Ajouter un étudiant',
+                   description='Création d’un étudiant et de son compte de connexion.',
+                   crumbParent='Étudiants', crumbParentHref=@{/admin/etudiants}, crumbCurrent='Ajouter',
+                   content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Ajouter un étudiant</h1>
+      <p>Les champs marqués d’un astérisque <span aria-hidden="true">*</span><span class="sr-only">(étoile)</span> sont obligatoires.</p>
+    </div>
+  </div>
+
+  <form th:action="@{/admin/etudiants/add}" th:object="${etudiant}" method="post" class="form-layout" autocomplete="off"
+        data-form data-form-guard>
+    <div class="inline-alert is-warning" data-form-dirty role="status" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><span>Vous avez des modifications non enregistrées.</span></div>
+    <div class="inline-alert is-danger" data-form-summary role="alert" tabindex="-1" hidden></div>
+
+    <fieldset class="section">
+      <legend>Identité</legend>
+      <p class="section-desc">Informations propres à l’étudiant.</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-prenom">Prénom <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="text" id="f-prenom" th:field="*{prenom}" required autocomplete="given-name" aria-describedby="f-prenom-err">
+          <p class="field-error" id="f-prenom-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-nom">Nom <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="text" id="f-nom" th:field="*{nom}" required autocomplete="family-name" aria-describedby="f-nom-err">
+          <p class="field-error" id="f-nom-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-matricule">Matricule <span class="req" aria-hidden="true">*</span></label>
+          <input class="input mono" type="text" id="f-matricule" th:field="*{matricule}" required spellcheck="false" aria-describedby="f-matricule-hint f-matricule-err">
+          <p class="hint" id="f-matricule-hint">Identifiant unique de l’étudiant.</p>
+          <p class="field-error" id="f-matricule-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section">
+      <legend>Contact</legend>
+      <div class="grid-2">
+        <div class="field full">
+          <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="email" id="f-email" th:field="*{email}" required autocomplete="email" placeholder="prenom.nom@exemple.fr" aria-describedby="f-email-err">
+          <p class="field-error" id="f-email-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section">
+      <legend>Inscription</legend>
+      <p class="section-desc">Date d’inscription et groupe d’affectation.</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-date">Date d’inscription <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="date" id="f-date" th:field="*{dateInscription}" required aria-describedby="f-date-err">
+          <p class="field-error" id="f-date-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-groupe">Groupe</label>
+          <select class="select" id="f-groupe" th:field="*{groupe.id}" aria-describedby="f-groupe-hint">
+            <option value="">Sélectionner un groupe</option>
+            <option th:each="g : ${groupes}" th:value="${g.id}" th:text="${g.nom}"></option>
+          </select>
+          <p class="hint" id="f-groupe-hint">Facultatif. Un étudiant peut être affecté plus tard.</p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section">
+      <legend>Accès</legend>
+      <p class="section-desc">Identifiants de connexion à l’espace étudiant.</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-username">Nom d’utilisateur <span class="req" aria-hidden="true">*</span></label>
+          <input class="input mono" type="text" id="f-username" th:field="*{username}" required autocomplete="off" spellcheck="false" aria-describedby="f-username-err">
+          <p class="field-error" id="f-username-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-password">Mot de passe <span class="req" aria-hidden="true">*</span></label>
+          <div class="pwd-wrap">
+            <input class="input" type="password" id="f-password" th:field="*{password}" required autocomplete="new-password"
+                   data-password-meter aria-describedby="f-password-hint f-password-str f-password-tips f-password-err">
+            <button type="button" class="icon-btn" data-pwd-toggle aria-controls="f-password" aria-pressed="false" aria-label="Afficher le mot de passe"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-eye"/></svg></button>
+          </div>
+          <div class="meter" data-meter data-score="0" aria-hidden="true" hidden><span></span><span></span><span></span><span></span></div>
+          <p class="hint" id="f-password-str" data-meter-text aria-live="polite" hidden></p>
+          <p class="hint" id="f-password-tips" data-meter-tips hidden></p>
+          <p class="hint" id="f-password-hint">Enregistré chiffré. Le rôle ETUDIANT est attribué automatiquement.</p>
+          <p class="field-error" id="f-password-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <span class="hint spacer">Les modifications ne sont enregistrées qu’après validation du formulaire.</span>
+      <a class="btn btn-secondary" th:href="@{/admin/etudiants}">Annuler</a>
+      <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Enregistrer</span></button>
+    </div>
+  </form>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-form.js}" src="../../../static/public/js/admin-form.js" defer></script>
+</th:block>
+
+</body>
+</html>

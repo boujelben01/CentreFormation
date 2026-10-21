@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!-- Rôles : ajout (lot 7, étape 3a) d'après la maquette admin/roles.html.
+     Inchangés : th:action, th:object « role », noms des champs, attributs de modèle du contrôleur.
+     Validation côté client, garde de sortie : admin-form.js (data-form*) ; le serveur reste l'autorité. -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Ajouter un rôle',
+                   description='Rôle d’accès : ADMIN, FORMATEUR ou ETUDIANT.',
+                   crumbParent='Rôles', crumbParentHref=@{/admin/roles}, crumbCurrent='Ajouter',
+                   content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Ajouter un rôle</h1>
+      <p>Les champs marqués d’un astérisque <span aria-hidden="true">*</span><span class="sr-only">(étoile)</span> sont obligatoires.</p>
+    </div>
+  </div>
+
+  <form th:action="@{/admin/roles/add}" th:object="${role}" method="post" class="form-layout" autocomplete="off"
+        data-form data-form-guard>
+    <div class="inline-alert is-warning" data-form-dirty role="status" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><span>Vous avez des modifications non enregistrées.</span></div>
+    <div class="inline-alert is-danger" data-form-summary role="alert" tabindex="-1" hidden></div>
+
+    <fieldset class="section">
+      <legend>Rôle</legend>
+      <p class="section-desc">Les rôles disponibles sont fixés par l’application.</p>
+      <div class="grid-2">
+        <div class="field full">
+          <label for="f-name">Nom du rôle <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-name" th:field="*{name}" required aria-describedby="f-name-hint f-name-err">
+            <option value="">Sélectionner un rôle</option>
+            <option value="ADMIN">ADMIN</option>
+            <option value="FORMATEUR">FORMATEUR</option>
+            <option value="ETUDIANT">ETUDIANT</option>
+          </select>
+          <p class="hint" id="f-name-hint">Un rôle ne peut exister qu’une seule fois : son nom doit être unique.</p>
+          <p class="field-error" id="f-name-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <span class="hint spacer">Les modifications ne sont enregistrées qu’après validation du formulaire.</span>
+      <a class="btn btn-secondary" th:href="@{/admin/roles}">Annuler</a>
+      <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Enregistrer</span></button>
+    </div>
+  </form>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-form.js}" src="../../../static/public/js/admin-form.js" defer></script>
+</th:block>
+
+</body>
+</html>

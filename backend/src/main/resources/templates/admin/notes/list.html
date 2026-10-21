@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<!-- Notes : liste (lot 7, étape 3a) d'après la maquette admin/notes.html ; patron : GUIDE-ADMIN-MODULE.md.
+     Attribut de modèle inchangé : « notes ». Le serveur envoie TOUTES les lignes ; recherche, tri, filtres et
+     pagination : admin-list.js (data-list*). Suppression : formulaire POST (th:action, CSRF) + dialogue (data-confirm-delete). -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Notes',
+                   description='Liste des notes : recherche, tri, filtres par session et cours, ajout et suppression.',
+                   crumbCurrent='Notes', content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page"
+         th:with="n=${notes == null ? 0 : #lists.size(notes)}">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Notes</h1>
+      <p id="list-sub" th:text="${n == 0 ? 'Aucune note' : (n == 1 ? '1 note' : n + ' notes')}">12 notes</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-primary" th:href="@{/admin/notes/add}"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg>Ajouter une note</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : empty-state (liste vide côté serveur) -->
+  <div class="card" th:if="${n == 0}">
+    <div class="state">
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucune note pour le moment</h2>
+      <p>Cette liste est vide. Ajoutez une première note pour commencer.</p>
+      <a class="btn btn-secondary" th:href="@{/admin/notes/add}">Ajouter une note</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : data-table -->
+  <div class="card" th:unless="${n == 0}" data-list data-list-id="notes" data-list-page-size="10">
+    <div class="toolbar" data-list-toolbar hidden>
+      <div class="search-field">
+        <label class="sr-only" for="notes-search">Rechercher une note</label>
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+        <input class="input input-icon" type="search" id="notes-search" data-list-search placeholder="Étudiant, cours ou session" autocomplete="off">
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" data-list-reset hidden><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>Réinitialiser les filtres</button>
+    </div>
+    <div data-list-filter="session" data-filter-label="Session" hidden></div>
+    <div data-list-filter="cours" data-filter-label="Cours" hidden></div>
+    <div class="result-line"><p data-list-count role="status" aria-live="polite" th:text="${n == 1 ? '1 résultat' : n + ' résultats'}">12 résultats</p></div>
+
+    <div class="table-wrap" data-list-wrap tabindex="0" role="region" aria-label="Liste des notes (défilement horizontal possible)">
+      <table class="dt" data-list-table>
+        <caption class="sr-only">Liste des notes, triable par colonne</caption>
+        <thead>
+          <tr>
+            <th scope="col" data-sort="text" data-sort-key="etudiant">Étudiant</th>
+            <th scope="col" data-sort="text" data-sort-key="cours">Cours</th>
+            <th scope="col" data-sort="text" data-sort-key="session">Session</th>
+            <th scope="col" class="is-num" data-sort="num" data-sort-key="valeur">Valeur</th>
+            <th scope="col" class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="n : ${notes}"
+              th:with="etuLib=${n.etudiant != null ? #strings.trim((n.etudiant.prenom ?: '') + ' ' + (n.etudiant.nom ?: '')) : null},
+                       coursT=${n.cours != null ? n.cours.titre : null},
+                       valTxt=${n.valeur != null ? #numbers.formatDecimal(n.valeur, 1, 'WHITESPACE', 2, 'COMMA') : null},
+                       libelle=${'Note de ' + (etuLib ?: '—') + ' (' + (valTxt != null ? valTxt + '/20' : '—') + ')'}">
+            <td th:attr="data-value=${etuLib ?: ''}">
+              <span th:if="${etuLib != null}" th:text="${etuLib}">valeur</span>
+              <span th:if="${etuLib == null}" class="subtle">—</span>
+            </td>
+            <td class="cell-wrap" th:attr="data-value=${coursT ?: ''}">
+              <span th:if="${coursT != null}" th:text="${coursT}">valeur</span>
+              <span th:if="${coursT == null}" class="subtle">—</span>
+            </td>
+            <td th:attr="data-value=${n.session ?: ''}">
+              <span th:if="${n.session != null}" th:text="${n.session}">valeur</span>
+              <span th:if="${n.session == null}" class="subtle">—</span>
+            </td>
+            <td class="is-num" th:attr="data-value=${n.valeur != null ? n.valeur : ''}">
+              <span class="score tnum" th:if="${n.valeur != null}" th:classappend="${n.valeur >= 10} ? 'is-pass' : 'is-fail'"><svg th:if="${n.valeur >= 10}" class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-circle-check"/></svg><svg th:unless="${n.valeur >= 10}" class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-alert-circle"/></svg><span th:text="|${valTxt}/20|">12,50/20</span><span class="sr-only" th:text="${n.valeur >= 10} ? ', réussi' : ', inférieur à la moyenne'">, réussi</span></span>
+              <span th:if="${n.valeur == null}" class="subtle">—</span>
+            </td>
+            <td class="col-actions">
+              <span class="row-actions">
+
+                <form class="inline-form" th:action="@{'/admin/notes/delete/' + ${n.id}}" method="post" data-confirm-delete th:attr="data-confirm-label=${libelle}">
+                  <ul hidden data-confirm-items>
+                    <li th:text="|${etuLib ?: '—'} · ${coursT ?: '—'} · session « ${n.session ?: '—'} ».|">Note</li>
+                    <li th:text="|Valeur : ${valTxt != null ? valTxt + '/20' : '—'}.|">Valeur</li>
+                  </ul>
+                  <button type="submit" class="icon-btn icon-btn-sm is-danger" title="Supprimer" th:attr="aria-label=|Supprimer ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-trash"/></svg></button>
+                </form>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COMPOSANT : état « aucun résultat » (affiché par admin-list.js) -->
+    <div class="state" data-list-empty hidden>
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucune note ne correspond</h2>
+      <p>Essayez avec un autre terme ou retirez un filtre pour élargir la recherche.</p>
+      <button type="button" class="btn btn-secondary" data-list-reset><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg>Réinitialiser les filtres</button>
+    </div>
+
+    <!-- COMPOSANT : pagination (construite par admin-list.js) -->
+    <nav class="pagination" data-list-pagination hidden aria-label="Pagination : liste des notes"></nav>
+  </div>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-list.js}" src="../../../static/public/js/admin-list.js" defer></script>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<!-- Formateurs : liste (lot 7, étape 3a) d'après la maquette admin/formateurs.html ; patron : GUIDE-ADMIN-MODULE.md.
+     Attribut de modèle inchangé : « formateurs ». Le serveur envoie TOUTES les lignes ; recherche, tri, filtres et
+     pagination : admin-list.js (data-list*). Suppression : formulaire POST (th:action, CSRF) + dialogue (data-confirm-delete). -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Formateurs',
+                   description='Liste des formateurs : recherche, tri, filtre par spécialité, ajout, modification et suppression.',
+                   crumbCurrent='Formateurs', content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page"
+         th:with="n=${formateurs == null ? 0 : #lists.size(formateurs)}">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Formateurs</h1>
+      <p id="list-sub" th:text="${n == 0 ? 'Aucun formateur' : (n == 1 ? '1 formateur' : n + ' formateurs')}">12 formateurs</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-primary" th:href="@{/admin/formateurs/add}"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg>Ajouter un formateur</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : empty-state (liste vide côté serveur) -->
+  <div class="card" th:if="${n == 0}">
+    <div class="state">
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucun formateur pour le moment</h2>
+      <p>Cette liste est vide. Ajoutez un premier formateur pour commencer.</p>
+      <a class="btn btn-secondary" th:href="@{/admin/formateurs/add}">Ajouter un formateur</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : data-table -->
+  <div class="card" th:unless="${n == 0}" data-list data-list-id="formateurs" data-list-sort="nom" data-list-page-size="10">
+    <div class="toolbar" data-list-toolbar hidden>
+      <div class="search-field">
+        <label class="sr-only" for="formateurs-search">Rechercher un formateur</label>
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+        <input class="input input-icon" type="search" id="formateurs-search" data-list-search placeholder="Nom, prénom, e-mail ou spécialité" autocomplete="off">
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" data-list-reset hidden><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>Réinitialiser les filtres</button>
+    </div>
+    <div data-list-filter="specialite" data-filter-label="Spécialité" data-filter-empty="Sans spécialité" hidden></div>
+    <div class="result-line"><p data-list-count role="status" aria-live="polite" th:text="${n == 1 ? '1 résultat' : n + ' résultats'}">12 résultats</p></div>
+
+    <div class="table-wrap" data-list-wrap tabindex="0" role="region" aria-label="Liste des formateurs (défilement horizontal possible)">
+      <table class="dt" data-list-table>
+        <caption class="sr-only">Liste des formateurs, triable par colonne</caption>
+        <thead>
+          <tr>
+            <th scope="col" data-sort="text" data-sort-key="nom">Nom</th>
+            <th scope="col" data-sort="text" data-sort-key="prenom">Prénom</th>
+            <th scope="col" data-sort="text" data-sort-key="email">Email</th>
+            <th scope="col" data-sort="text" data-sort-key="specialite">Spécialité</th>
+            <th scope="col" class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="f : ${formateurs}"
+              th:with="libelle=${#strings.trim((f.prenom ?: '') + ' ' + (f.nom ?: ''))},
+                       specNom=${f.specialite != null ? f.specialite.nom : null}">
+            <td th:attr="data-value=${f.nom}">
+              <div class="person">
+                <span class="avatar" aria-hidden="true" th:attr="data-avatar=${libelle}"
+                      th:text="${#strings.toUpperCase((#strings.isEmpty(f.prenom) ? '' : #strings.substring(f.prenom, 0, 1)) + (#strings.isEmpty(f.nom) ? '' : #strings.substring(f.nom, 0, 1)))}">AB</span>
+                <span class="person-name" th:text="${f.nom}">Nom</span>
+              </div>
+            </td>
+            <td th:text="${f.prenom}">Prénom</td>
+            <td class="cell-wrap" th:text="${f.email}">email@exemple.fr</td>
+            <td th:attr="data-value=${specNom ?: ''}">
+              <span th:if="${specNom != null}" class="badge badge-neutral badge--wrap" th:text="${specNom}">Spécialité</span>
+              <span th:if="${specNom == null}" class="subtle">—</span>
+            </td>
+            <td class="col-actions">
+              <span class="row-actions">
+                <a class="icon-btn icon-btn-sm is-primary" th:href="@{'/admin/formateurs/edit/' + ${f.id}}" title="Modifier" th:attr="aria-label=|Modifier ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-pencil"/></svg></a>
+                <form class="inline-form" th:action="@{'/admin/formateurs/delete/' + ${f.id}}" method="post" data-confirm-delete th:attr="data-confirm-label=${libelle}">
+                  <ul hidden data-confirm-items>
+                    <li th:text="${specNom != null} ? |Spécialité : ${specNom}.| : 'Aucune spécialité renseignée.'">Spécialité</li>
+                    <li th:if="${!#strings.isEmpty(f.username)}" th:text="|Son compte utilisateur « ${f.username} » est supprimé en même temps.|">Compte</li>
+                  </ul>
+                  <button type="submit" class="icon-btn icon-btn-sm is-danger" title="Supprimer" th:attr="aria-label=|Supprimer ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-trash"/></svg></button>
+                </form>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COMPOSANT : état « aucun résultat » (affiché par admin-list.js) -->
+    <div class="state" data-list-empty hidden>
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucun formateur ne correspond</h2>
+      <p>Essayez avec un autre terme ou retirez un filtre pour élargir la recherche.</p>
+      <button type="button" class="btn btn-secondary" data-list-reset><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg>Réinitialiser les filtres</button>
+    </div>
+
+    <!-- COMPOSANT : pagination (construite par admin-list.js) -->
+    <nav class="pagination" data-list-pagination hidden aria-label="Pagination : liste des formateurs"></nav>
+  </div>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-list.js}" src="../../../static/public/js/admin-list.js" defer></script>
+</th:block>
+
+</body>
+</html>

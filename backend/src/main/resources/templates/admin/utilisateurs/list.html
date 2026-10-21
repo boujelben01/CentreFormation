@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<!-- Utilisateurs : liste (lot 7, étape 3a) d'après la maquette admin/utilisateurs.html ; patron : GUIDE-ADMIN-MODULE.md.
+     Attribut de modèle inchangé : « utilisateurs ». Le serveur envoie TOUTES les lignes ; recherche, tri, filtres et
+     pagination : admin-list.js (data-list*). Suppression : formulaire POST (th:action, CSRF) + dialogue (data-confirm-delete). -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Utilisateurs',
+                   description='Liste des utilisateurs : recherche, tri, filtres par état du compte et par rôle, ajout, modification et suppression.',
+                   crumbCurrent='Utilisateurs', content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page"
+         th:with="n=${utilisateurs == null ? 0 : #lists.size(utilisateurs)}">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Utilisateurs</h1>
+      <p id="list-sub" th:text="${n == 0 ? 'Aucun utilisateur' : (n == 1 ? '1 utilisateur' : n + ' utilisateurs')}">12 utilisateurs</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-primary" th:href="@{/admin/utilisateurs/add}"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg>Ajouter un utilisateur</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : empty-state (liste vide côté serveur) -->
+  <div class="card" th:if="${n == 0}">
+    <div class="state">
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucun utilisateur pour le moment</h2>
+      <p>Cette liste est vide. Ajoutez un premier utilisateur pour commencer.</p>
+      <a class="btn btn-secondary" th:href="@{/admin/utilisateurs/add}">Ajouter un utilisateur</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : data-table -->
+  <div class="card" th:unless="${n == 0}" data-list data-list-id="utilisateurs" data-list-sort="username" data-list-page-size="10">
+    <div class="toolbar" data-list-toolbar hidden>
+      <div class="search-field">
+        <label class="sr-only" for="utilisateurs-search">Rechercher un utilisateur</label>
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+        <input class="input input-icon" type="search" id="utilisateurs-search" data-list-search placeholder="Nom d’utilisateur ou rôle" autocomplete="off">
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" data-list-reset hidden><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>Réinitialiser les filtres</button>
+    </div>
+    <div data-list-filter="enabled" data-filter-label="Activé" hidden></div>
+    <div data-list-filter="roles" data-filter-label="Rôle" data-filter-empty="Sans rôle" data-filter-split="|" hidden></div>
+    <div class="result-line"><p data-list-count role="status" aria-live="polite" th:text="${n == 1 ? '1 résultat' : n + ' résultats'}">12 résultats</p></div>
+
+    <div class="table-wrap" data-list-wrap tabindex="0" role="region" aria-label="Liste des utilisateurs (défilement horizontal possible)">
+      <table class="dt" data-list-table>
+        <caption class="sr-only">Liste des utilisateurs, triable par colonne</caption>
+        <thead>
+          <tr>
+            <th scope="col" data-sort="text" data-sort-key="username">Nom d’utilisateur</th>
+            <th scope="col" data-sort="text" data-sort-key="enabled">Activé</th>
+            <th scope="col" data-sort="text" data-sort-key="date">Date de création</th>
+            <th scope="col" data-key="roles">Rôles</th>
+            <th scope="col" class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="u : ${utilisateurs}"
+              th:with="libelle=${u.username ?: ''},
+                       self=${#authentication != null and #authentication.name == u.username},
+                       roleNames=${#lists.sort(u.roles.![name != null ? name.name() : ''])}">
+            <td th:attr="data-value=${libelle}">
+              <span class="mono" th:text="${u.username}">admin</span>
+              <span th:if="${self}" class="badge badge-info" title="Compte connecté">Vous</span>
+            </td>
+            <td th:attr="data-value=${u.enabled ? 'Oui' : 'Non'}">
+              <span th:if="${u.enabled}" class="badge badge-success"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-circle-check"/></svg>Oui</span>
+              <span th:unless="${u.enabled}" class="badge badge-neutral"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>Non</span>
+            </td>
+            <td class="nowrap" th:attr="data-value=${u.dateCreation != null ? u.dateCreation : ''}">
+              <span th:if="${u.dateCreation != null}" th:text="${#temporals.format(u.dateCreation, 'dd/MM/yyyy')}">15/10/2026</span>
+              <span th:if="${u.dateCreation == null}" class="subtle">—</span>
+            </td>
+            <td th:attr="data-value=${#strings.listJoin(roleNames, '|')}">
+              <span th:each="rn : ${roleNames}" th:with="rk=${rn == 'ADMIN' ? 'info' : 'neutral'}, rp=${rn == 'ADMIN' ? 'shield' : (rn == 'FORMATEUR' ? 'briefcase' : 'graduation-cap')}" th:if="${!#strings.isEmpty(rn)}"><span class="badge" th:classappend="|badge-${rk}|"><svg class="icon" aria-hidden="true" focusable="false"><use th:attr="href=|#i-${rp}|" href="#i-shield"/></svg><span th:text="${rn}">ADMIN</span></span> </span>
+              <span th:if="${#lists.isEmpty(roleNames)}" class="subtle" title="Aucun rôle">—</span>
+            </td>
+            <td class="col-actions">
+              <span class="row-actions">
+                <a class="icon-btn icon-btn-sm is-primary" th:href="@{'/admin/utilisateurs/edit/' + ${u.id}}" title="Modifier" th:attr="aria-label=|Modifier ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-pencil"/></svg></a>
+                <form class="inline-form" th:action="@{'/admin/utilisateurs/delete/' + ${u.id}}" method="post" data-confirm-delete th:attr="data-confirm-label=${libelle},data-confirm-desc=${self ? 'Attention : vous êtes connecté avec ce compte. Le supprimer mettra fin à votre accès : vous ne pourrez plus vous connecter.' : null},data-confirm-ok=${self ? 'Supprimer mon compte' : null}">
+                  <ul hidden data-confirm-items>
+                    <li th:if="${self}">Ce compte est celui avec lequel vous êtes connecté.</li>
+                    <li th:text="${u.enabled} ? 'Compte actif : la personne ne pourra plus se connecter.' : 'Compte déjà désactivé.'">Compte</li>
+                    <li th:if="${!#lists.isEmpty(roleNames)}" th:text="|Rôles : ${#strings.listJoin(roleNames, ', ')}|">Rôles</li>
+                  </ul>
+                  <button type="submit" class="icon-btn icon-btn-sm is-danger" title="Supprimer" th:attr="aria-label=|Supprimer ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-trash"/></svg></button>
+                </form>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COMPOSANT : état « aucun résultat » (affiché par admin-list.js) -->
+    <div class="state" data-list-empty hidden>
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucun utilisateur ne correspond</h2>
+      <p>Essayez avec un autre terme ou retirez un filtre pour élargir la recherche.</p>
+      <button type="button" class="btn btn-secondary" data-list-reset><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg>Réinitialiser les filtres</button>
+    </div>
+
+    <!-- COMPOSANT : pagination (construite par admin-list.js) -->
+    <nav class="pagination" data-list-pagination hidden aria-label="Pagination : liste des utilisateurs"></nav>
+  </div>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-list.js}" src="../../../static/public/js/admin-list.js" defer></script>
+</th:block>
+
+</body>
+</html>

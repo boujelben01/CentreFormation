@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!-- Connexion admin (lot 7) : maquette admin/login.html. Champs réels inchangés :
+     username, password, remember-me ; POST /login (Spring Security, jeton CSRF ajouté par th:action). -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin :: head(title='Connexion', description='Connexion à l’espace d’administration EduPortal.')}"></head>
+<body>
+  <svg th:replace="~{fragments/admin :: sprite}"></svg>
+  <a class="skip-link" href="#main">Aller au contenu principal</a>
+  <div class="login">
+    <header class="login-top">
+      <a th:replace="~{fragments/admin :: brand(brandHref=@{/login})}"></a>
+      <button th:replace="~{fragments/admin :: theme-toggle}"></button>
+    </header>
+
+    <main id="main" class="login-main" tabindex="-1">
+      <div class="card login-card">
+        <h1 id="h-login" tabindex="-1">Centre de Formation</h1>
+        <p class="lead">Connectez-vous à votre compte</p>
+
+        <div th:if="${param.logout}" class="inline-alert is-success" role="status">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-circle-check"/></svg>
+          <span>Vous avez été déconnecté avec succès.</span>
+        </div>
+        <div th:if="${param.error}" class="inline-alert is-danger" role="alert">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert-circle"/></svg>
+          <span>Nom d’utilisateur ou mot de passe incorrect.</span>
+        </div>
+
+        <form id="login-form" class="login-form" th:action="@{/login}" method="post" novalidate autocomplete="on" aria-labelledby="h-login">
+          <div class="field">
+            <label for="username">Nom d’utilisateur <span class="req" aria-hidden="true">*</span></label>
+            <input class="input" id="username" name="username" type="text" autocomplete="username" required aria-required="true" autofocus aria-describedby="username-err">
+            <p class="field-error" id="username-err" hidden></p>
+          </div>
+          <div class="field">
+            <label for="password">Mot de passe <span class="req" aria-hidden="true">*</span></label>
+            <div class="pwd-wrap">
+              <input class="input" id="password" name="password" type="password" autocomplete="current-password" required aria-required="true" aria-describedby="password-err">
+              <button type="button" class="icon-btn" id="pwd-toggle" data-pwd-toggle aria-label="Afficher le mot de passe" aria-pressed="false" aria-controls="password">
+                <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-eye"/></svg>
+              </button>
+            </div>
+            <p class="field-error" id="password-err" hidden></p>
+          </div>
+          <label class="check" for="remember-me"><input type="checkbox" id="remember-me" name="remember-me"><span>Se souvenir de moi</span></label>
+          <button type="submit" class="btn btn-primary btn-lg btn-block" id="login-submit">
+            <svg class="icon icon-sm" aria-hidden="true" focusable="false" id="login-ico"><use href="#i-lock"/></svg><span id="login-label">Se connecter</span>
+          </button>
+        </form>
+      </div>
+    </main>
+
+    <footer class="site-foot"><div class="foot-in"><p>© 2026 Centre de Formation</p></div></footer>
+  </div>
+</body>
+</html>

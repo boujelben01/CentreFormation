@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<!-- Inscriptions : ajout (lot 7, étape 3a) d'après la maquette admin/inscriptions.html.
+     Inchangés : th:action, th:object « inscription », noms des champs, attributs de modèle du contrôleur.
+     Validation côté client, garde de sortie : admin-form.js (data-form*) ; le serveur reste l'autorité. -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Ajouter une inscription',
+                   description='Inscription d’un étudiant à un cours.',
+                   crumbParent='Inscriptions', crumbParentHref=@{/admin/inscriptions}, crumbCurrent='Ajouter',
+                   content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Ajouter une inscription</h1>
+      <p>Les champs marqués d’un astérisque <span aria-hidden="true">*</span><span class="sr-only">(étoile)</span> sont obligatoires.</p>
+    </div>
+  </div>
+
+  <form th:action="@{/admin/inscriptions/add}" th:object="${inscription}" method="post" class="form-layout" autocomplete="off"
+        data-form data-form-guard>
+    <div class="inline-alert is-warning" data-form-dirty role="status" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><span>Vous avez des modifications non enregistrées.</span></div>
+    <div class="inline-alert is-danger" data-form-summary role="alert" tabindex="-1" hidden></div>
+
+    <fieldset class="section">
+      <legend>Inscription</legend>
+      <p class="section-desc">Rattachez un étudiant à un cours.</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-etudiant">Étudiant <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-etudiant" th:field="*{etudiant.id}" required aria-describedby="f-etudiant-hint f-etudiant-err">
+            <option value="">Sélectionner un étudiant</option>
+            <option th:each="e : ${etudiants}" th:value="${e.id}" th:text="${(e.nom ?: '') + ' ' + (e.prenom ?: '')}"></option>
+          </select>
+          <p class="hint" id="f-etudiant-hint">Affiché sous la forme « Nom Prénom ».</p>
+          <p class="field-error" id="f-etudiant-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-cours">Cours <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-cours" th:field="*{cours.id}" required aria-describedby="f-cours-err">
+            <option value="">Sélectionner un cours</option>
+            <option th:each="c : ${coursList}" th:value="${c.id}" th:text="${c.titre}"></option>
+          </select>
+          <p class="field-error" id="f-cours-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-date">Date d’inscription <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="date" id="f-date" th:field="*{dateInscription}" required aria-describedby="f-date-err">
+          <p class="field-error" id="f-date-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-statut">Statut <span class="req" aria-hidden="true">*</span></label>
+          <select class="select" id="f-statut" th:field="*{statut}" required aria-describedby="f-statut-hint f-statut-err">
+            <option value="EN_ATTENTE" selected>En attente</option>
+            <option value="INSCRIT">Inscrit</option>
+            <option value="ANNULE">Annulé</option>
+          </select>
+          <p class="hint" id="f-statut-hint">Par défaut, l’inscription est « En attente » jusqu’à sa confirmation.</p>
+          <p class="field-error" id="f-statut-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <span class="hint spacer">Les modifications ne sont enregistrées qu’après validation du formulaire.</span>
+      <a class="btn btn-secondary" th:href="@{/admin/inscriptions}">Annuler</a>
+      <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Enregistrer</span></button>
+    </div>
+  </form>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-form.js}" src="../../../static/public/js/admin-form.js" defer></script>
+</th:block>
+
+</body>
+</html>

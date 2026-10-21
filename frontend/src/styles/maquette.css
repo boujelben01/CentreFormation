@@ -1,0 +1,10 @@
+/* Feuilles portées des maquettes validées. Chargées APRÈS Tailwind (voir main.tsx) : à spécificité égale,
+   elles l'emportent sur le reset de Tailwind (titres, liens, etc.). */
+@import './base.css';
+@import './client.css';
+@import './app-shell.css';
+@import './sonner.css';
+
+/* Conteneur du site public : .container de la maquette (client/shared.css), limite au site public
+   pour ne pas entrer en conflit avec le .container de Tailwind utilise ailleurs. */
+.site .container { width: 100%; max-width: var(--container-max); margin-inline: auto; padding-inline: var(--client-gutter); }

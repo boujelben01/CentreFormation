@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!-- Rôles : liste (lot 7, étape 3a) d'après la maquette admin/roles.html ; patron : GUIDE-ADMIN-MODULE.md.
+     Attribut de modèle inchangé : « roles ». Le serveur envoie TOUTES les lignes ; recherche, tri, filtres et
+     pagination : admin-list.js (data-list*). Suppression : formulaire POST (th:action, CSRF) + dialogue (data-confirm-delete). -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Rôles',
+                   description='Liste des rôles : recherche, tri, ajout, modification et suppression.',
+                   crumbCurrent='Rôles', content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page"
+         th:with="n=${roles == null ? 0 : #lists.size(roles)}">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1">Rôles</h1>
+      <p id="list-sub" th:text="${n == 0 ? 'Aucun rôle' : (n == 1 ? '1 rôle' : n + ' rôles')}">12 rôles</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-primary" th:href="@{/admin/roles/add}"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg>Ajouter un rôle</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : empty-state (liste vide côté serveur) -->
+  <div class="card" th:if="${n == 0}">
+    <div class="state">
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucun rôle pour le moment</h2>
+      <p>Cette liste est vide. Ajoutez un premier rôle pour commencer.</p>
+      <a class="btn btn-secondary" th:href="@{/admin/roles/add}">Ajouter un rôle</a>
+    </div>
+  </div>
+
+  <!-- COMPOSANT : data-table -->
+  <div class="card" th:unless="${n == 0}" data-list data-list-id="roles" data-list-sort="nom" data-list-page-size="10">
+    <div class="toolbar" data-list-toolbar hidden>
+      <div class="search-field">
+        <label class="sr-only" for="roles-search">Rechercher un rôle</label>
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+        <input class="input input-icon" type="search" id="roles-search" data-list-search placeholder="Nom du rôle" autocomplete="off">
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" data-list-reset hidden><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-x"/></svg>Réinitialiser la recherche</button>
+    </div>
+    <div class="result-line"><p data-list-count role="status" aria-live="polite" th:text="${n == 1 ? '1 résultat' : n + ' résultats'}">12 résultats</p></div>
+
+    <div class="table-wrap" data-list-wrap tabindex="0" role="region" aria-label="Liste des rôles (défilement horizontal possible)">
+      <table class="dt" data-list-table>
+        <caption class="sr-only">Liste des rôles, triable par colonne</caption>
+        <thead>
+          <tr>
+            <th scope="col" data-sort="text" data-sort-key="nom">Nom</th>
+            <th scope="col" class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="r : ${roles}"
+              th:with="libelle=${r.name != null ? r.name.name() : ''},
+                       kind=${libelle == 'ADMIN' ? 'info' : 'neutral'},
+                       picto=${libelle == 'ADMIN' ? 'shield' : (libelle == 'FORMATEUR' ? 'briefcase' : 'graduation-cap')}">
+            <td th:attr="data-value=${libelle}">
+              <span class="badge" th:classappend="|badge-${kind}|"><svg class="icon" aria-hidden="true" focusable="false"><use th:attr="href=|#i-${picto}|" href="#i-shield"/></svg><span th:text="${libelle}">ADMIN</span></span>
+            </td>
+            <td class="col-actions">
+              <span class="row-actions">
+                <a class="icon-btn icon-btn-sm is-primary" th:href="@{'/admin/roles/edit/' + ${r.id}}" title="Modifier" th:attr="aria-label=|Modifier ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-pencil"/></svg></a>
+                <form class="inline-form" th:action="@{'/admin/roles/delete/' + ${r.id}}" method="post" data-confirm-delete th:attr="data-confirm-label=${libelle}">
+                  <ul hidden data-confirm-items>
+                    <li>Le nom d’un rôle est unique et limité à ADMIN, FORMATEUR et ETUDIANT : il pourra être recréé.</li>
+                  </ul>
+                  <button type="submit" class="icon-btn icon-btn-sm is-danger" title="Supprimer" th:attr="aria-label=|Supprimer ${libelle}|"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-trash"/></svg></button>
+                </form>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COMPOSANT : état « aucun résultat » (affiché par admin-list.js) -->
+    <div class="state" data-list-empty hidden>
+      <svg th:replace="~{fragments/admin :: illu-empty}"></svg>
+      <h2>Aucun rôle ne correspond</h2>
+      <p>Essayez avec un autre terme ou retirez un filtre pour élargir la recherche.</p>
+      <button type="button" class="btn btn-secondary" data-list-reset><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg>Réinitialiser la recherche</button>
+    </div>
+
+    <!-- COMPOSANT : pagination (construite par admin-list.js) -->
+    <nav class="pagination" data-list-pagination hidden aria-label="Pagination : liste des rôles"></nav>
+  </div>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-list.js}" src="../../../static/public/js/admin-list.js" defer></script>
+</th:block>
+
+</body>
+</html>

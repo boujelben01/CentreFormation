@@ -1,0 +1,122 @@
+### =====================================================
+### FORMATION API - Fichier de test des endpoints REST
+### Extension requise: REST Client (humao.rest-client)
+### Cliquez sur "Send Request" au-dessus de chaque requête
+### =====================================================
+
+### Variables d'environnement
+@baseUrl = http://localhost:8080
+@formateurUsername = salah.benali
+@formateurPassword = formateur123
+@etudiantUsername = ali.chaabane
+@etudiantPassword = etudiant123
+
+### =====================================================
+### 🧑‍🏫 FORMATEUR API
+### =====================================================
+
+### GET - Liste des groupes du formateur
+GET {{baseUrl}}/api/formateur/groupes
+Authorization: Basic {{formateurUsername}}:{{formateurPassword}}
+Content-Type: application/json
+
+###
+
+### GET - Liste des séances du formateur
+GET {{baseUrl}}/api/formateur/seances
+Authorization: Basic {{formateurUsername}}:{{formateurPassword}}
+Content-Type: application/json
+
+###
+
+### GET - Planning (emploi du temps) du formateur
+GET {{baseUrl}}/api/formateur/planning
+Authorization: Basic {{formateurUsername}}:{{formateurPassword}}
+Content-Type: application/json
+
+###
+
+### GET - Étudiants d'un groupe (remplacer 1 par l'ID du groupe)
+GET {{baseUrl}}/api/formateur/groupes/7/etudiants
+Authorization: Basic {{formateurUsername}}:{{formateurPassword}}
+Content-Type: application/json
+
+###
+
+### GET - Notes saisies par le formateur
+GET {{baseUrl}}/api/formateur/notes
+Authorization: Basic {{formateurUsername}}:{{formateurPassword}}
+Content-Type: application/json
+
+###
+
+### POST - Saisir une nouvelle note
+POST {{baseUrl}}/api/formateur/notes
+Authorization: Basic {{formateurUsername}}:{{formateurPassword}}
+Content-Type: application/json
+
+{
+  "valeur": 15.5,
+  "session": "2025-2026 S1",
+  "etudiant": {
+    "id": 7
+  },
+  "cours": {
+    "id": 9
+  }
+}
+
+###
+
+### PUT - Modifier une note existante (remplacer 1 par l'ID de la note)
+PUT {{baseUrl}}/api/formateur/notes/1
+Authorization: Basic {{formateurUsername}}:{{formateurPassword}}
+Content-Type: application/json
+
+{
+  "valeur": 17.0,
+  "session": "2025-2026 S1",
+  "etudiant": {
+    "id": 1
+  },
+  "cours": {
+    "id": 1
+  }
+}
+
+### =====================================================
+### 🎓 ETUDIANT API
+### =====================================================
+
+### GET - Planning (emploi du temps) de l'étudiant
+GET {{baseUrl}}/api/etudiant/planning
+Authorization: Basic {{etudiantUsername}}:{{etudiantPassword}}
+Content-Type: application/json
+
+###
+
+### GET - Notes et évaluations de l'étudiant
+GET {{baseUrl}}/api/etudiant/notes
+Authorization: Basic {{etudiantUsername}}:{{etudiantPassword}}
+Content-Type: application/json
+
+###
+
+### GET - Notifications de l'étudiant
+GET {{baseUrl}}/api/etudiant/notifications
+Authorization: Basic {{etudiantUsername}}:{{etudiantPassword}}
+Content-Type: application/json
+
+###
+
+### GET - Liste des cours de l'étudiant
+GET {{baseUrl}}/api/etudiant/cours
+Authorization: Basic {{etudiantUsername}}:{{etudiantPassword}}
+Content-Type: application/json
+
+###
+
+### GET - Liste des formateurs de l'étudiant
+GET {{baseUrl}}/api/etudiant/formateurs
+Authorization: Basic {{etudiantUsername}}:{{etudiantPassword}}
+Content-Type: application/json

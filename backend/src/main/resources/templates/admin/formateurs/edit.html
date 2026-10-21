@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!-- Formateurs : modification (lot 7, étape 3a) d'après la maquette admin/formateurs.html.
+     Inchangés : th:action, th:object « formateur », noms des champs, attributs de modèle du contrôleur.
+     Validation côté client, garde de sortie : admin-form.js (data-form*) ; le serveur reste l'autorité. -->
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(title='Modifier un formateur',
+                   description='Formateur et son compte de connexion.',
+                   crumbParent='Formateurs', crumbParentHref=@{/admin/formateurs}, crumbCurrent='Modifier',
+                   content=~{::page}, scripts=~{::page-scripts})}">
+<body>
+
+<section th:fragment="page" class="view" aria-labelledby="h-page">
+  <div class="page-head">
+    <div>
+      <h1 id="h-page" tabindex="-1" th:text="${#strings.trim('Modifier ' + (formateur.prenom ?: '') + ' ' + (formateur.nom ?: ''))}">Modifier un formateur</h1>
+      <p>Mettez à jour les informations puis enregistrez. Les champs marqués d’un astérisque <span aria-hidden="true">*</span><span class="sr-only">(étoile)</span> sont obligatoires.</p>
+    </div>
+  </div>
+
+  <form th:action="@{'/admin/formateurs/edit/' + ${formateur.id}}" th:object="${formateur}" method="post" class="form-layout" autocomplete="off"
+        data-form data-form-guard>
+    <div class="inline-alert is-warning" data-form-dirty role="status" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><span>Vous avez des modifications non enregistrées.</span></div>
+    <div class="inline-alert is-danger" data-form-summary role="alert" tabindex="-1" hidden></div>
+
+    <fieldset class="section">
+      <legend>Identité</legend>
+      <p class="section-desc">Informations propres au formateur.</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-prenom">Prénom <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="text" id="f-prenom" th:field="*{prenom}" required autocomplete="given-name" aria-describedby="f-prenom-err">
+          <p class="field-error" id="f-prenom-err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="f-nom">Nom <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="text" id="f-nom" th:field="*{nom}" required autocomplete="family-name" aria-describedby="f-nom-err">
+          <p class="field-error" id="f-nom-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section">
+      <legend>Contact</legend>
+      <div class="grid-2">
+        <div class="field full">
+          <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
+          <input class="input" type="email" id="f-email" th:field="*{email}" required autocomplete="email" placeholder="prenom.nom@exemple.fr" aria-describedby="f-email-err">
+          <p class="field-error" id="f-email-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section">
+      <legend>Spécialité</legend>
+      <p class="section-desc">Domaine d’enseignement du formateur.</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-specialite">Spécialité</label>
+          <select class="select" id="f-specialite" th:field="*{specialite.id}" aria-describedby="f-specialite-hint">
+            <option value="">Sélectionner une spécialité</option>
+            <option th:each="s : ${specialites}" th:value="${s.id}" th:text="${s.nom}" th:selected="${formateur.specialite != null and s.id == formateur.specialite.id}"></option>
+          </select>
+          <p class="hint" id="f-specialite-hint">Facultatif.</p>
+          <p class="field-error" id="f-specialite-err" hidden></p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section">
+      <legend>Accès</legend>
+      <div class="inline-alert is-info"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-info"/></svg><div>Le nom d’utilisateur et le mot de passe ne sont pas modifiables depuis cet écran.</div></div>
+    </fieldset>
+
+    <div class="form-actions">
+      <span class="hint spacer">Les modifications ne sont enregistrées qu’après validation du formulaire.</span>
+      <a class="btn btn-secondary" th:href="@{/admin/formateurs}">Annuler</a>
+      <button type="submit" class="btn btn-primary"><svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-check"/></svg><span>Mettre à jour</span></button>
+    </div>
+  </form>
+</section>
+
+<th:block th:fragment="page-scripts">
+  <script th:src="@{/public/js/admin-form.js}" src="../../../static/public/js/admin-form.js" defer></script>
+</th:block>
+
+</body>
+</html>

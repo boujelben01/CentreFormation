@@ -1,0 +1,29 @@
+/* EduPortal — typographie et base (portées de la maquette). */
+/* Plus Jakarta Sans a une espace étroite : avec le crénage serré des titres, les mots se collaient (« Montezen »). */
+:root { --heading-word-spacing: 0.06em; }
+/* Classes typographiques utilitaires (optionnelles, alignées sur l'échelle) */
+.text-display { word-spacing: var(--heading-word-spacing); font: var(--text-display-weight) var(--text-display-size)/var(--text-display-lh) var(--font-display); letter-spacing: var(--text-display-ls); }
+.text-h1 { word-spacing: var(--heading-word-spacing); font: var(--text-h1-weight) var(--text-h1-size)/var(--text-h1-lh) var(--font-display); letter-spacing: var(--text-h1-ls); }
+.text-h2 { word-spacing: var(--heading-word-spacing); font: var(--text-h2-weight) var(--text-h2-size)/var(--text-h2-lh) var(--font-display); letter-spacing: var(--text-h2-ls); }
+.text-h3 { word-spacing: var(--heading-word-spacing); font: var(--text-h3-weight) var(--text-h3-size)/var(--text-h3-lh) var(--font-display); letter-spacing: var(--text-h3-ls); }
+.text-h4 { word-spacing: var(--heading-word-spacing); font: var(--text-h4-weight) var(--text-h4-size)/var(--text-h4-lh) var(--font-display); letter-spacing: var(--text-h4-ls); }
+.text-body-lg { font: var(--text-body-lg-weight) var(--text-body-lg-size)/var(--text-body-lg-lh) var(--font-body); }
+.text-body { font: var(--text-body-weight) var(--text-body-size)/var(--text-body-lh) var(--font-body); }
+.text-small { font: var(--text-small-weight) var(--text-small-size)/var(--text-small-lh) var(--font-body); }
+.text-caption { font: var(--text-caption-weight) var(--text-caption-size)/var(--text-caption-lh) var(--font-body); letter-spacing: var(--text-caption-ls); }
+.measure { max-width: var(--measure); }
+
+/* Chiffres tabulaires : notes, horaires, montants, effectifs */
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+
+/* Base de la maquette (tokens.css §9) — le reset, le focus, les barres de défilement et le lien d'évitement sont dans index.css / Tailwind. */
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: var(--text-body-size); line-height: var(--text-body-lh); }
+h1, h2, h3, h4 { margin: 0; font-family: var(--font-display); color: var(--text); text-wrap: balance; word-spacing: var(--heading-word-spacing); }
+h1 { font-size: var(--text-h1-size); line-height: var(--text-h1-lh); font-weight: var(--text-h1-weight); letter-spacing: var(--text-h1-ls); }
+h2 { font-size: var(--text-h2-size); line-height: var(--text-h2-lh); font-weight: var(--text-h2-weight); letter-spacing: var(--text-h2-ls); }
+h3 { font-size: var(--text-h3-size); line-height: var(--text-h3-lh); font-weight: var(--text-h3-weight); letter-spacing: var(--text-h3-ls); }
+h4 { font-size: var(--text-h4-size); line-height: var(--text-h4-lh); font-weight: var(--text-h4-weight); letter-spacing: var(--text-h4-ls); }
+p { margin: 0; }
+a { color: var(--primary-text); text-underline-offset: 0.2em; }
+a:hover { color: var(--primary-hover); }
